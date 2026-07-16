@@ -5,9 +5,9 @@ import { ArrowDown, Mail, FolderGit2 } from "lucide-react";
 import { useTypewriter } from "@/hooks/useTypewriter";
 
 const TITLES = [
+  "AI Software Engineer",
   "Full-Stack Developer",
-  "Mobile Engineer",
-  "AI Workflow Builder",
+  "Enterprise Systems Builder",
 ];
 
 const containerVariants = {
@@ -99,9 +99,9 @@ export default function Hero() {
           variants={itemVariants}
           className="mt-6 max-w-xl text-base sm:text-lg text-text-secondary leading-relaxed"
         >
-          I craft performant web &amp; mobile apps, design scalable backends, and
-          build AI-powered agentic workflows. Passionate about clean
-          architecture and delightful UX.
+          I build AI-powered enterprise apps, modernize manufacturing systems
+          (WMS/TPM/PMS), and ship full-stack solutions with React, Django,
+          .NET &amp; Flutter.
         </motion.p>
 
         {/* CTAs */}
