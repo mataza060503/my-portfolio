@@ -1,163 +1,134 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import dynamic from "next/dynamic";
-import { useTerminal } from "@/hooks/useTerminal";
 
 /* ============================================
-   Dynamic import — R3F runs client-only
+   Commands
    ============================================ */
-const RetroComputerR3F = dynamic(
-  () => import("@/components/RetroComputerR3F"),
-  {
-    ssr: false,
-    loading: () => (
-      <div
-        className="w-full rounded-2xl bg-bg-secondary/50 flex items-center justify-center"
-        style={{ aspectRatio: "1 / 0.8", maxHeight: 600 }}
-      >
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-full border-2 border-accent-violet border-t-transparent animate-spin" />
-          <span className="text-sm text-text-muted font-mono">
-            Initializing 3D Engine...
-          </span>
-        </div>
-      </div>
-    ),
-  },
-);
-
-/* ============================================
-   Flat terminal fallback (no WebGL)
-   ============================================ */
-function FlatTerminal({
-  history,
-  input,
-  focused,
-  setInput,
-  submit,
-  handleKeyDown,
-  focus,
-  blur,
-  bottomRef,
-}: ReturnType<typeof useTerminal>) {
-  return (
-    <div
-      className="w-full rounded-2xl overflow-hidden border border-bg-surface/30"
-      style={{
-        aspectRatio: "1 / 0.8",
-        maxHeight: 600,
-        background:
-          "radial-gradient(ellipse at 55% 40%, #0d220d, #020a02 80%)",
-      }}
-    >
-      <div className="h-full w-full font-mono text-[10px] sm:text-[11px] leading-relaxed p-4 flex flex-col relative">
-        <div
-          className="absolute inset-0 pointer-events-none opacity-[0.05]"
-          style={{
-            backgroundImage:
-              "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.3) 2px, rgba(0,0,0,0.3) 3px)",
-          }}
-        />
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              "radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.5) 95%)",
-          }}
-        />
-        <div
-          className="flex-1 overflow-y-auto relative z-10"
-          style={{
-            fontFamily: "var(--font-mono), 'Courier New', monospace",
-            color: "#8bff8b",
-            textShadow:
-              "0 0 4px rgba(139,255,139,0.55), 0 0 10px rgba(139,255,139,0.18)",
-          }}
-        >
-          {history.map((entry, i) => (
-            <div key={i} className="mb-0.5">
-              {entry.type === "input" ? (
-                <div className="flex gap-1">
-                  <span style={{ color: "#c4b5fd" }}>C:\&gt;</span>
-                  <span style={{ color: "#e2e8f0" }}>
-                    {entry.text.replace("C:\\> ", "")}
-                  </span>
-                </div>
-              ) : (
-                <div className="whitespace-pre-wrap" style={{ color: "#8bff8b" }}>
-                  {entry.text}
-                </div>
-              )}
-            </div>
-          ))}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              submit();
-            }}
-            className="flex gap-1 mt-0.5"
-          >
-            <span style={{ color: "#c4b5fd", flexShrink: 0 }}>C:\&gt;</span>
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Escape") {
-                  (e.target as HTMLInputElement).blur();
-                  return;
-                }
-                handleKeyDown(e);
-              }}
-              onFocus={focus}
-              onBlur={blur}
-              className="flex-1 bg-transparent border-none outline-none font-mono text-[10px] sm:text-[11px] placeholder:text-white/10"
-              style={{
-                color: "#e2e8f0",
-                caretColor: "var(--color-accent-emerald)",
-              }}
-              placeholder="Type a command..."
-              spellCheck={false}
-              autoComplete="off"
-            />
-          </form>
-          <div ref={bottomRef} />
-        </div>
-      </div>
-    </div>
-  );
+interface CmdEntry {
+  type: "input" | "output";
+  text: string;
 }
 
+const COMMANDS: Record<string, string | string[]> = {
+  help: [
+    " Available commands:",
+    "   help       Show this message",
+    "   about      About me",
+    "   skills     My tech stack",
+    "   projects   Featured projects",
+    "   contact    How to reach me",
+    "   clear      Clear the terminal",
+  ],
+  about: [
+    " +------------------------------------------+",
+    " |  Vo Hoang Lam - AI Software Engineer     |",
+    " |  Dong Nai, Vietnam                       |",
+    " |                                          |",
+    " |  1+ Year building AI-powered enterprise  |",
+    " |  apps, modernizing manufacturing, and    |",
+    " |  shipping full-stack solutions.          |",
+    " +------------------------------------------+",
+  ],
+  skills: [
+    " +- Tech Stack ----------------------------+",
+    " | Frontend:  React, Next.js, Angular,      |",
+    " |            TypeScript, Tailwind CSS       |",
+    " | Backend:   Django, Python, .NET, SQL     |",
+    " | Mobile:    Flutter, Android, RFID         |",
+    " | AI:        LangChain, RAG, GPT, Pinecone |",
+    " | Tools:     Git, Nix, TightVNC            |",
+    " +-------------------------------------------+",
+  ],
+  projects: [
+    " +- Featured Projects ---------------------+",
+    " | * UEL GenAI Retrieval System             |",
+    " |   RAG + LangChain + GPT + Pinecone       |",
+    " | * WMS Modernization                      |",
+    " |   React + Flutter + RFID Scanning        |",
+    " | * TPM System                             |",
+    " |   React + Flutter + Python + Django      |",
+    " | * VNC Helper (.NET + TightVNC)           |",
+    " +-------------------------------------------+",
+  ],
+  contact: [
+    " +- Contact -------------------------------+",
+    " | Email:   liamvo0605.work@gmail.com       |",
+    " | GitHub:  github.com/mataza060503         |",
+    " | LinkedIn: linkedin.com/in/lam-vo         |",
+    " | Location: Dong Nai, Vietnam              |",
+    " +-------------------------------------------+",
+  ],
+};
+
 /* ============================================
-   Playground — Interactive 3D Retro Computer
+   Playground — Simple Terminal
    ============================================ */
 export default function Playground() {
-  const terminal = useTerminal();
-  const reduce = useReducedMotion();
+  const [history, setHistory] = useState<CmdEntry[]>([
+    { type: "output", text: 'Welcome! Type "help" to get started.' },
+  ]);
+  const [input, setInput] = useState("");
+  const [commandHistory, setCommandHistory] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
-  const [useFlatFallback, setUseFlatFallback] = useState(false);
+  const reduce = useReducedMotion();
 
   useEffect(() => {
-    try {
-      const c = document.createElement("canvas");
-      const gl = c.getContext("webgl2") || c.getContext("webgl");
-      if (!gl) setUseFlatFallback(true);
-    } catch {
-      setUseFlatFallback(true);
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [history]);
+
+  const processCommand = useCallback((cmd: string) => {
+    const trimmed = cmd.trim().toLowerCase();
+    if (!trimmed) return;
+    setHistory((prev) => [...prev, { type: "input", text: `C:\\> ${cmd}` }]);
+    if (trimmed === "clear") { setHistory([]); return; }
+    const output = COMMANDS[trimmed];
+    if (output) {
+      const lines = Array.isArray(output) ? output : [output];
+      setHistory((prev) => [...prev, ...lines.map((text) => ({ type: "output" as const, text }))]);
+    } else {
+      setHistory((prev) => [...prev, { type: "output", text: `Unknown command: "${trimmed}". Type "help".` }]);
     }
   }, []);
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+    processCommand(input.trim());
+    setCommandHistory((prev) => [input.trim(), ...prev]);
+    setInput("");
+    setHistoryIndex(-1);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (commandHistory.length > 0) {
+        const ni = Math.min(historyIndex + 1, commandHistory.length - 1);
+        setHistoryIndex(ni);
+        setInput(commandHistory[ni]);
+      }
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (historyIndex > 0) {
+        setHistoryIndex(historyIndex - 1);
+        setInput(commandHistory[historyIndex - 1]);
+      } else {
+        setHistoryIndex(-1);
+        setInput("");
+      }
+    }
+  };
+
   return (
-    <section
-      id="playground"
-      ref={sectionRef}
-      className="relative py-24 sm:py-32 px-6 overflow-visible"
-    >
+    <section id="playground" ref={sectionRef} className="relative py-24 sm:py-32 px-6">
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-accent-violet/20 to-transparent" />
 
-      <div className="mx-auto max-w-[820px]">
+      <div className="mx-auto max-w-[680px]">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -174,66 +145,95 @@ export default function Playground() {
               Playground
             </span>
           </h2>
-          <p className="mt-3 text-sm text-text-muted max-w-md mx-auto">
-            Drag to orbit · scroll to zoom · click the screen to type commands.
-          </p>
         </motion.div>
 
-        <div style={{ perspective: 2000 }} className="transform-gpu">
-          <motion.div
-            initial={
-              reduce
-                ? false
-                : {
-                    rotateY: -25,
-                    rotateX: 6,
-                    y: 80,
-                    z: 40,
-                    opacity: 0,
-                    scale: 0.94,
-                  }
-            }
-            whileInView={
-              reduce
-                ? {}
-                : {
-                    rotateY: 0,
-                    rotateX: 0,
-                    y: 0,
-                    z: 0,
-                    opacity: 1,
-                    scale: 1,
-                  }
-            }
-            viewport={{ once: false, amount: 0.1 }}
-            transition={{
-              type: "spring",
-              stiffness: 38,
-              damping: 17,
-              mass: 1.4,
-            }}
+        {/* Terminal window */}
+        <motion.div
+          initial={reduce ? false : { opacity: 0, y: 30 }}
+          whileInView={reduce ? {} : { opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.15 }}
+          className="relative rounded-xl overflow-hidden border border-bg-surface/40 shadow-xl shadow-black/30"
+          onClick={() => inputRef.current?.focus()}
+        >
+          {/* Title bar */}
+          <div className="flex items-center gap-2 px-4 py-2.5 bg-bg-tertiary/80 border-b border-bg-surface/30">
+            <span className="w-3 h-3 rounded-full bg-red-500/70" />
+            <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
+            <span className="w-3 h-3 rounded-full bg-green-500/70" />
+            <span className="ml-2 text-[11px] text-text-muted font-mono tracking-wide">
+              terminal — visitor@portfolio
+            </span>
+          </div>
+
+          {/* Screen */}
+          <div
+            className="h-[420px] overflow-y-auto p-4 font-mono text-[12px] sm:text-[13px] leading-relaxed"
             style={{
-              transformStyle: "preserve-3d",
-              transformOrigin: "center center",
-              willChange: "transform, opacity",
+              background: "radial-gradient(ellipse at 55% 30%, #0d1a0d, #050f05 80%)",
+              fontFamily: "var(--font-mono), 'Courier New', monospace",
             }}
           >
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-black/50 ring-1 ring-white/5">
-              {useFlatFallback ? (
-                <FlatTerminal {...terminal} />
-              ) : (
-                <RetroComputerR3F {...terminal} />
-              )}
-            </div>
+            {/* Scanlines */}
+            <div
+              className="absolute inset-0 pointer-events-none opacity-[0.04]"
+              style={{
+                backgroundImage:
+                  "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.3) 2px, rgba(0,0,0,0.3) 3px)",
+              }}
+            />
 
-            <p
-              className="mt-6 text-center text-xs text-text-muted"
-              style={{ fontFamily: "var(--font-mono), monospace" }}
-            >
-              Try: help · about · skills · projects · contact · clear
-            </p>
-          </motion.div>
-        </div>
+            {history.map((entry, i) => (
+              <div key={i} className="mb-0.5 relative z-10">
+                {entry.type === "input" ? (
+                  <div className="flex gap-1">
+                    <span className="text-accent-violet-glow shrink-0">C:\&gt;</span>
+                    <span className="text-text-primary">
+                      {entry.text.replace("C:\\> ", "")}
+                    </span>
+                  </div>
+                ) : (
+                  <div
+                    className="whitespace-pre-wrap"
+                    style={{
+                      color: "#8bff8b",
+                      textShadow:
+                        "0 0 4px rgba(139,255,139,0.4), 0 0 8px rgba(139,255,139,0.15)",
+                    }}
+                  >
+                    {entry.text}
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {/* Input line */}
+            <form onSubmit={handleSubmit} className="flex gap-1 mt-0.5 relative z-10">
+              <span className="text-accent-violet-glow shrink-0">C:\&gt;</span>
+              <input
+                ref={inputRef}
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="flex-1 bg-transparent border-none outline-none font-mono text-[12px] sm:text-[13px] placeholder:text-white/10"
+                style={{ color: "#e2e8f0", caretColor: "var(--color-accent-emerald)" }}
+                placeholder="Type a command..."
+                autoFocus
+                spellCheck={false}
+                autoComplete="off"
+              />
+            </form>
+            <div ref={bottomRef} />
+          </div>
+        </motion.div>
+
+        <p
+          className="mt-5 text-center text-xs text-text-muted"
+          style={{ fontFamily: "var(--font-mono), monospace" }}
+        >
+          Try: help · about · skills · projects · contact · clear
+        </p>
       </div>
     </section>
   );
