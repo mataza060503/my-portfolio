@@ -203,3 +203,20 @@
   - **Cinematic Lighting**: Ambient + key directional (2048px shadows) + fill + rim + violet point + emerald point with `sin()` pulsing.
   - **Simplified Playground.tsx**: Removed HTML overlay terminal — all text now renders on the 3D CRT screen texture. "Deal from the deck" scroll entry animation preserved.
   - Build verified: `npm run build` → clean compile, zero TypeScript errors, zero hydration mismatches.
+
+- [x] **Task 19: Fix Keycap Anchoring + Hardware Micro-Details + Retro Peripheral Decorations**
+  - **CRITICAL FIX: Keycaps anchored to base plate**:
+    - Root cause: keycaps floated at `y=0.63` while base plate top surface was at `y=0.05` — detached by 0.58 units.
+    - Fix: `Y_ON_PLATE = 0.05 + 0.07/2 = 0.085` — all keycaps now sit flush on the keyboard faceplate.
+    - Rows distributed across Z range `[-0.48, 0.46]` spanning the full keyboard depth.
+    - Keypress animation now depresses `position.y` (toward plate) instead of `position.z` (sideways).
+    - `userData.baseY` replaces `userData.baseZ` for correct axis tracking.
+  - **Panel Seams & Vents**: 3 recessed seam lines on front chassis + 18 top vents + 8 right-side vents.
+  - **Floppy Disk Drive**: Horizontal slot in lower bezel with amber LED (`#ff8c00`) pulsing via `sin(t*3.5)+sin(t*7.3)`.
+  - **Power Rocker Switch**: Extruded housing on right panel with tilted rocker cap (0.2rad Z).
+  - **Screen Light Bleed**: `PointLight(0x7aff7a)` in front of CRT, pulsing `sin(t*1.4)` to cast live phosphor glow onto desk mat and keyboard.
+  - **Coiled Data Cable**: `CatmullRomCurve3` + `TubeGeometry(r:0.04, 60seg)` with oscillation `cos(t*π*10)*0.12`, tapering at ends, with cylinder connectors.
+  - **Scattered Floppy Disks**: Two 3D disks (`0.55×0.06×0.55`) with metal sliders and `CanvasTexture` paper labels ("WMS Core v1.0", "AI Agent Hook"), propped at slight angles.
+  - **Cyber-Neon Desk Mat**: `PlaneGeometry(8×5)` with `CanvasTexture` violet grid (32px/128px), emerald dashed stitched border, raised edge for physical thickness.
+  - All decorations are children of the main scene — rotate naturally with OrbitControls.
+  - Build verified: `npm run build` → clean compile, zero TypeScript errors, zero hydration mismatches.
