@@ -189,16 +189,40 @@ export default function Playground() {
             <div className="w-full lg:w-[260px] flex-shrink-0 flex lg:flex-col items-center gap-4 relative"
               onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
 
-              {/* Power Cable SVG with stroke-dashoffset surge animation */}
-              <svg className="hidden lg:block absolute -left-10 top-[20%] w-12 h-[3px] pointer-events-none z-10" style={{ overflow:"visible" }}>
-                <line x1="0" y1="0" x2="44" y2="0" stroke={isPoweredOn?"#22d3ee":"#334155"} strokeWidth="3" strokeLinecap="round"
-                  style={{ filter: isPoweredOn?"drop-shadow(0 0 8px rgba(34,211,238,0.7))":"none", transition:"stroke 0.7s" }} />
-                {/* Surge line */}
-                <line x1="0" y1="0" x2="44" y2="0" stroke="#22d3ee" strokeWidth="3" strokeLinecap="round" opacity="0"
-                  strokeDasharray="44" strokeDashoffset="44"
-                  style={{ filter: "drop-shadow(0 0 12px rgba(34,211,238,0.9))", animation: isBooting?"cableSurge 1.5s ease-in-out forwards":"none" }} />
-                <circle cx="0" cy="0" r="4" fill={isPoweredOn?"#22d3ee":"#64748b"} style={{ transition:"fill 0.7s" }} />
-                <circle cx="44" cy="0" r="4" fill={isPoweredOn?"#22d3ee":"#64748b"} style={{ transition:"fill 0.7s" }} />
+              {/* Curved Power Cable SVG — bezier path with surge animation */}
+              <svg className="hidden lg:block absolute -left-14 top-[8%] w-16 h-32 pointer-events-none z-10" style={{ overflow:"visible" }}>
+                <defs>
+                  <filter id="glowCable">
+                    <feGaussianBlur stdDeviation="2" result="blur" />
+                    <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                  </filter>
+                </defs>
+                {/* Curved cable path */}
+                <path d="M 0,4 C 20,4 30,20 50,28" fill="none"
+                  stroke={isPoweredOn?"#22d3ee":"#334155"} strokeWidth="2.5" strokeLinecap="round"
+                  style={{ transition:"stroke 0.7s", filter: isPoweredOn?"url(#glowCable)":"none" }} />
+                {/* Surge path */}
+                <path d="M 0,4 C 20,4 30,20 50,28" fill="none"
+                  stroke="#22d3ee" strokeWidth="2.5" strokeLinecap="round"
+                  strokeDasharray="60" strokeDashoffset="60" opacity="0"
+                  style={{ filter: "drop-shadow(0 0 8px rgba(34,211,238,0.9))", animation: isBooting?"cableSurge 1.5s ease-in-out forwards":"none" }} />
+                {/* Traveling dots on the curve */}
+                {isBooting && Array.from({ length: 3 }).map((_, i) => (
+                  <motion.circle key={i} r="3" fill="#22d3ee"
+                    style={{ filter: "drop-shadow(0 0 6px rgba(34,211,238,0.9))" }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0,1,0] }}
+                    transition={{ duration: 1.2, delay: 0.2+i*0.35, ease:"easeInOut", repeat: 1 }}>
+                    <animateMotion dur="1.2s" repeatCount="1" begin={`${0.2+i*0.35}s`}
+                      path="M 0,4 C 20,4 30,20 50,28" />
+                  </motion.circle>
+                ))}
+                {/* Connector plugs */}
+                <circle cx="0" cy="4" r="4.5" fill={isPoweredOn?"#22d3ee":"#64748b"} style={{ transition:"fill 0.7s" }} />
+                <circle cx="50" cy="28" r="4.5" fill={isPoweredOn?"#22d3ee":"#64748b"} style={{ transition:"fill 0.7s" }} />
+                {/* Plug metal tips */}
+                <rect x="-1" y="-2" width="2" height="4" rx="1" fill="#8899aa" style={{ transition:"fill 0.7s", fill: isPoweredOn?"#67e8f9":"#8899aa" }} />
+                <rect x="49" y="26" width="2" height="4" rx="1" fill="#8899aa" style={{ transition:"fill 0.7s", fill: isPoweredOn?"#67e8f9":"#8899aa" }} />
               </svg>
 
               {/* Tower Case */}
@@ -228,40 +252,50 @@ export default function Playground() {
                     <div className="absolute top-6 right-6 w-8 h-1 bg-[#1a1a28] rounded-full" />
                   </div>
 
-                  {/* ── CPU COOLING FAN (programmatic blades) ── */}
-                  <div className="absolute top-[28%] left-1/2 -translate-x-1/2 w-24 h-24 flex items-center justify-center">
-                    {/* Fan frame */}
-                    <div className="absolute inset-0 rounded-full" style={{ border: "2px solid #1a1a28", background: "#0d0d16" }} />
-                    {/* RGB ring */}
-                    <motion.div className="absolute inset-0 rounded-full pointer-events-none"
-                      animate={{ opacity: isPoweredOn ? 1 : 0 }} transition={{ duration: 0.8 }}
-                      style={{ background: "conic-gradient(from 0deg, transparent, rgba(6,182,212,0.15) 40deg, rgba(6,182,212,0.3) 80deg, rgba(34,211,238,0.15) 160deg, transparent 200deg, rgba(139,92,246,0.1) 280deg, transparent 320deg)", boxShadow: isPoweredOn ? "0 0 20px rgba(6,182,212,0.3), 0 0 40px rgba(6,182,212,0.1)" : "none" }} />
-                    {/* Fan hub */}
-                    <motion.div className="absolute w-6 h-6 rounded-full z-10 flex items-center justify-center"
-                      style={{ background: "radial-gradient(circle, #1a1a28, #0d0d18)", border: "1px solid #222" }}
-                      animate={{ boxShadow: isPoweredOn ? "0 0 12px rgba(6,182,212,0.5)" : "none" }} transition={{ duration: 0.6 }}>
-                      <div className="w-1.5 h-1.5 rounded-full" style={{ background: isPoweredOn ? "#22d3ee" : "#333", transition: "background 0.6s" }} />
-                    </motion.div>
-                    {/* 7 Fan Blades */}
-                    <motion.div className="absolute inset-0"
-                      animate={{ rotate: isPoweredOn ? 360 : 0 }}
-                      transition={isPoweredOn ? { rotate: { duration: 0.3, repeat: Infinity, ease: "linear" } } : { duration: 0 }}>
-                      {Array.from({ length: 7 }).map((_, i) => (
-                        <div key={i} className="absolute top-0 left-1/2 -translate-x-1/2 w-[8px] origin-bottom"
-                          style={{
-                            height: "55%",
-                            transform: `rotate(${i * (360/7)}deg)`,
-                            transformOrigin: "50% 100%",
-                          }}>
-                          <motion.div className="absolute bottom-0 left-0 right-0 rounded-full"
-                            style={{ top: "-40%", background: "linear-gradient(180deg, #2a2a38, #1a1a28)" }}
-                            animate={{ filter: isPoweredOn ? "blur(1.5px)" : "blur(0px)" }} transition={{ duration: 0.8 }} />
-                        </div>
+                  {/* ── REALISTIC CPU FAN (SVG curved blades + frame) ── */}
+                  <div className="absolute top-[24%] left-1/2 -translate-x-1/2 w-28 h-28 flex items-center justify-center">
+                    {/* Fan frame — square with rounded corners */}
+                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 112 112">
+                      <defs>
+                        <radialGradient id="hubGrad"><stop offset="0%" stopColor="#2a2a38" /><stop offset="100%" stopColor="#111" /></radialGradient>
+                        <filter id="bladeBlur"><feGaussianBlur stdDeviation={isPoweredOn?"1.2":"0"} /></filter>
+                      </defs>
+                      {/* Outer frame */}
+                      <rect x="2" y="2" width="108" height="108" rx="14" fill="none" stroke="#1a1a28" strokeWidth="3" />
+                      {/* Corner screw holes */}
+                      {[[10,10],[102,10],[10,102],[102,102]].map(([cx,cy],i) => (
+                        <circle key={i} cx={cx} cy={cy} r="4" fill="#0d0d16" stroke="#1a1a28" strokeWidth="1" />
                       ))}
-                    </motion.div>
-                    {/* Glass reflection */}
-                    <div className="absolute inset-0 rounded-full pointer-events-none"
-                      style={{ background: "radial-gradient(ellipse at 30% 30%, rgba(255,255,255,0.03) 0%, transparent 60%)" }} />
+                      {/* Cross braces */}
+                      <line x1="56" y1="18" x2="56" y2="30" stroke="#1a1a28" strokeWidth="2" />
+                      <line x1="56" y1="82" x2="56" y2="94" stroke="#1a1a28" strokeWidth="2" />
+                      <line x1="18" y1="56" x2="30" y2="56" stroke="#1a1a28" strokeWidth="2" />
+                      <line x1="82" y1="56" x2="94" y2="56" stroke="#1a1a28" strokeWidth="2" />
+                      {/* RGB ring glow */}
+                      <motion.circle cx="56" cy="56" r="38" fill="none" strokeWidth="2"
+                        animate={{ opacity: isPoweredOn?1:0, stroke: isPoweredOn?"rgba(6,182,212,0.4)":"transparent" }}
+                        transition={{ duration: 0.8 }}
+                        style={{ filter: isPoweredOn?"drop-shadow(0 0 8px rgba(6,182,212,0.5))":"none" }} />
+                      {/* Spinning blades group */}
+                      <g filter="url(#bladeBlur)" style={{ transformOrigin:"56px 56px", animation: isPoweredOn?"fanSpin 0.3s linear infinite":"none" }}>
+                        {/* 9 Curved fan blades */}
+                        {Array.from({ length: 9 }).map((_, i) => (
+                          <g key={i} transform={`rotate(${i*(360/9)} 56 56)`}>
+                            <path d="M 56,28 C 62,28 70,34 72,50 C 69,52 62,46 56,42 Z"
+                              fill="#1e1e2c" stroke="#252534" strokeWidth="0.5" />
+                          </g>
+                        ))}
+                      </g>
+                      {/* Center hub */}
+                      <circle cx="56" cy="56" r="10" fill="url(#hubGrad)" stroke="#1a1a28" strokeWidth="1.5" />
+                      <motion.circle cx="56" cy="56" r="3"
+                        animate={{ fill: isPoweredOn?"#22d3ee":"#333" }}
+                        transition={{ duration: 0.6 }} />
+                    </svg>
+                    {/* Conic RGB overlay on glass */}
+                    <motion.div className="absolute inset-0 rounded-2xl pointer-events-none"
+                      animate={{ opacity: isPoweredOn?1:0 }} transition={{ duration: 0.8 }}
+                      style={{ background: "conic-gradient(from 0deg, transparent, rgba(6,182,212,0.12) 30deg, rgba(6,182,212,0.2) 60deg, rgba(34,211,238,0.12) 120deg, transparent 180deg, rgba(139,92,246,0.08) 250deg, transparent 320deg)" }} />
                   </div>
 
                   {/* RAM sticks */}
@@ -348,7 +382,8 @@ export default function Playground() {
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
         @keyframes rippleOut { 0%{transform:translate(-50%,-50%) scale(1);opacity:0.9} 100%{transform:translate(-50%,-50%) scale(30);opacity:0} }
         @keyframes pulseRing { 0%{box-shadow:0 0 0 0 rgba(6,182,212,0.25)} 70%{box-shadow:0 0 0 10px rgba(6,182,212,0)} 100%{box-shadow:0 0 0 0 rgba(6,182,212,0)} }
-        @keyframes cableSurge { 0%{stroke-dashoffset:44;opacity:0} 20%{opacity:1} 100%{stroke-dashoffset:0;opacity:0} }
+        @keyframes cableSurge { 0%{stroke-dashoffset:60;opacity:0} 15%{opacity:1} 100%{stroke-dashoffset:0;opacity:0} }
+        @keyframes fanSpin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
     `}</style>
     </section>
   );
