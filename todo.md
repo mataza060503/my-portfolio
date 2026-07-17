@@ -182,3 +182,24 @@
     - Retained Framer Motion "deal from the deck" scrollytelling: `rotateY: [-55, 0]`, `rotateX: [2, 4]`, `y: [120, 0]`, `z: [80, 0]`, spring `stiffness: 40, damping: 18, mass: 1.5`, `viewport={{ once: false }}`.
   - **Resource Cleanup**: `cancelAnimationFrame`, `renderer.dispose()`, full geometry/material disposal on unmount.
   - Build verified: `npm run build` → clean compile, zero TypeScript errors, zero hydration mismatches.
+
+- [x] **Task 18: Custom 3D Retro Computer Model with OrbitControls & Live CRT Screen**
+  - **Inspected the FBX**: Binary FBX 7400, exported from Blender 4.0.2, contains 5 meshes (monitor, keyboard, accessories) with Phong shading, originally from `Web development 3d clipart.blend`.
+  - **Built custom procedural 3D model from scratch** instead of loading FBX, for full control:
+    - **CRT Monitor Chassis**: `BoxGeometry(3.6, 2.7, 2.2)` with softened edges (vertex displacement), beige PBR material (`#d4cbb8`, roughness 0.55).
+    - **Screen Bezel**: Two-layer frame — outer dark bezel (`#3a3430`) + inner recessed frame (`#2a2420`).
+    - **Live CRT Screen**: `CanvasTexture` (512×384) mapped onto a `PlaneGeometry(2.35, 1.75)` — terminal text, scanlines, phosphor bloom, and vignette drawn in real-time via Canvas2D API every animation frame.
+    - **Ventilation Slots**: 18 narrow box geometries across the top of the chassis.
+    - **Power Button + LED**: Cylinder button with pulsing emerald LED (`emissiveIntensity` oscillates via `sin(t*2.5)`).
+    - **Brand Badge**: Small metal-accent box on lower bezel.
+  - **Monitor Stand**: Cylinder neck (`r: 0.22→0.28`) + wide cylinder base (`r: 0.7→0.8`) in `#b8ab98`.
+  - **Mechanical Keyboard**:
+    - Base plate (`3.2×0.1×1.3`) tilted 18° on X-axis with visible bottom edge.
+    - 6 rows of individual `BoxGeometry` keycaps (3×2×3 segments for slight rounding) with variable widths (1×, 1.5×, 1.6×, 1.9×, 2.1×, 2.4×, 5.5×).
+    - Each keycap stored in `Map<string, Mesh>` for per-key animation.
+    - Key press: `position.z` depresses `-0.06`, material switches to `#8b5cf6` with `emissiveIntensity: 1.3`, auto-resets after 220ms.
+  - **Desk Surface**: Large `PlaneGeometry(14, 8)` in dark wood (`#2a2220`) + shadow catcher plane.
+  - **OrbitControls**: Full 360° rotation, scroll zoom (4–18 range), polar angle limits, auto-rotate (0.4 speed), damping (0.08).
+  - **Cinematic Lighting**: Ambient + key directional (2048px shadows) + fill + rim + violet point + emerald point with `sin()` pulsing.
+  - **Simplified Playground.tsx**: Removed HTML overlay terminal — all text now renders on the 3D CRT screen texture. "Deal from the deck" scroll entry animation preserved.
+  - Build verified: `npm run build` → clean compile, zero TypeScript errors, zero hydration mismatches.
