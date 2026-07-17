@@ -162,3 +162,23 @@
     - `viewport={{ once: false, amount: 0.12 }}` — bi-directional trigger confirmed.
   - **Retro Typography**: Monospace `C:\>` prompt in `#c4b5fd` (lavender), amber-green phosphor output (`#8bff8b`), retro keyboard labels in `var(--font-mono)` for authentic DOS-era feel.
   - Build verified: `npm run build` → clean compile, zero hydration mismatches, full static prerender.
+
+- [x] **Task 17: FBX 3D Model Integration with Three.js**
+  - Installed `three@0.185.1` + `@types/three` + `fflate` (FBX decompression).
+  - Copied `3cSource/Web development 3d clipart.fbx` → `public/retro-computer.fbx` (2.9MB, FBX 7400).
+  - Created `RetroComputer3D.tsx` — client-side-only Three.js canvas component:
+    - **FBX Loading**: `FBXLoader` from `three/examples/jsm/loaders/FBXLoader.js`, auto-scale via bounding-box normalization (max dimension → 5 units), ground-plane centering.
+    - **Scene Setup**: `PerspectiveCamera(fov 38)`, isometric view (`position: 6, 4.5, 9`), ACESFilmic tone mapping, PCFSoft shadow mapping.
+    - **Cinematic Lighting**: Ambient (`#404060`), key directional (warm `#ffeedd`, cast shadows), fill (`#8899cc`), rim (`#ffccaa`), violet accent point light (`#8b5cf6`, pulsing), emerald point light (`#10b981`, pulsing) for keyboard glow.
+    - **Procedural 3D Keyboard**: 6-row staggered key layout built from `BoxGeometry` keycaps on a `rotateX(55deg)` tilted baseplate with thickness edge. Each keycap stored in a `Map<string, Mesh>` for per-key animation.
+    - **Reactive Key Animation**: On `activeKey` change, matched keycap depresses `-0.07` on Y, material switches to `#8b5cf6` with emissive glow (intensity 1.4). All keys reset after 220ms.
+    - **Animation Loop**: Subtle floating (`sin(t*0.6)*0.001`), slow yaw drift (`sin(t*0.35)*0.001`), pulsing accent lights.
+    - **Memory Management**: Full geometry/material disposal on unmount via `scene.traverse`.
+    - **Deduplicated keyboard build** via `keyboardBuiltRef` guard (prevents double-building on load+error paths).
+  - **Updated Playground.tsx**:
+    - Dynamic import (`next/dynamic`) of `RetroComputer3D` with `ssr: false` + loading spinner skeleton.
+    - CRT terminal text rendered as HTML overlay positioned over the 3D canvas screen area with same phosphor bloom, scanlines, glass curvature, and micro-flicker from Task 16.
+    - Blinking emerald caret, `C:\>` lavender prompt, amber-green `#8bff8b` monospace output.
+    - Retained Framer Motion "deal from the deck" scrollytelling: `rotateY: [-55, 0]`, `rotateX: [2, 4]`, `y: [120, 0]`, `z: [80, 0]`, spring `stiffness: 40, damping: 18, mass: 1.5`, `viewport={{ once: false }}`.
+  - **Resource Cleanup**: `cancelAnimationFrame`, `renderer.dispose()`, full geometry/material disposal on unmount.
+  - Build verified: `npm run build` → clean compile, zero TypeScript errors, zero hydration mismatches.
