@@ -1,26 +1,25 @@
 "use client";
 
-import { useRef, useCallback, useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import dynamic from "next/dynamic";
-import { useTerminal } from "@/hooks/useTerminal";
 
 /* ============================================
-   Dynamic import — R3F runs client-only
+   Dynamic imports — R3F runs client-only
    ============================================ */
-const RetroComputerR3F = dynamic(
-  () => import("@/components/RetroComputerR3F"),
+const CuratedWorkspace = dynamic(
+  () => import("@/components/CuratedWorkspace"),
   {
     ssr: false,
     loading: () => (
       <div
         className="w-full rounded-2xl bg-bg-secondary/50 flex items-center justify-center"
-        style={{ aspectRatio: "1 / 0.8", maxHeight: 600 }}
+        style={{ aspectRatio: "16 / 10", maxHeight: 650 }}
       >
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-full border-2 border-accent-violet border-t-transparent animate-spin" />
-          <span className="text-sm text-text-muted font-mono">
-            Initializing 3D Engine...
+          <div className="w-10 h-10 rounded-full border-2 border-amber-400 border-t-transparent animate-spin" />
+          <span className="text-sm text-amber-200/80 font-mono">
+            Rendering workspace...
           </span>
         </div>
       </div>
@@ -29,121 +28,73 @@ const RetroComputerR3F = dynamic(
 );
 
 /* ============================================
-   Flat terminal fallback (no WebGL)
+   WebGL fallback — flat terminal
    ============================================ */
-function FlatTerminal({
-  history,
-  input,
-  focused,
-  setInput,
-  submit,
-  handleKeyDown,
-  focus,
-  blur,
-  bottomRef,
-}: ReturnType<typeof useTerminal>) {
+function FlatTerminal() {
   return (
     <div
       className="w-full rounded-2xl overflow-hidden border border-bg-surface/30"
-      style={{
-        aspectRatio: "1 / 0.8",
-        maxHeight: 600,
-        background:
-          "radial-gradient(ellipse at 55% 40%, #0d220d, #020a02 80%)",
-      }}
+      style={{ aspectRatio: "16 / 10", maxHeight: 650 }}
     >
-      <div className="h-full w-full font-mono text-[10px] sm:text-[11px] leading-relaxed p-4 flex flex-col relative">
+      <div
+        className="h-full w-full font-mono text-[11px] leading-relaxed p-5 flex flex-col"
+        style={{
+          fontFamily: "var(--font-mono), 'Courier New', monospace",
+          background: "#1a1a2e",
+          color: "#abb2bf",
+        }}
+      >
+        {/* Title bar */}
+        <div className="text-[#8899aa] font-bold mb-3 text-xs">
+          C:\ hl_playground_terminal &gt;
+        </div>
+        {/* Code content */}
+        <div className="flex-1 overflow-hidden space-y-0.5">
+          <div><span style={{ color: "#555566" }}>  1</span>  <span style={{ color: "#c678dd" }}>import</span> <span style={{ color: "#e5c07b" }}>{'{ useTerminal }'}</span> <span style={{ color: "#c678dd" }}>from</span> <span style={{ color: "#98c379" }}>&apos;@/hooks/useTerminal&apos;</span></div>
+          <div><span style={{ color: "#555566" }}>  2</span>  <span style={{ color: "#c678dd" }}>import</span> <span style={{ color: "#e5c07b" }}>RetroComputer</span> <span style={{ color: "#c678dd" }}>from</span> <span style={{ color: "#98c379" }}>&apos;./RetroComputerR3F&apos;</span></div>
+          <div><span style={{ color: "#555566" }}>  3</span></div>
+          <div><span style={{ color: "#555566" }}>  4</span>  <span style={{ color: "#c678dd" }}>export</span> <span style={{ color: "#c678dd" }}>default</span> <span style={{ color: "#c678dd" }}>function</span> <span style={{ color: "#61afef" }}>Playground</span>() {'{'}</div>
+          <div><span style={{ color: "#555566" }}>  5</span>    <span style={{ color: "#c678dd" }}>const</span> <span style={{ color: "#e5c07b" }}>terminal</span> = useTerminal()</div>
+          <div><span style={{ color: "#555566" }}>  6</span>    <span style={{ color: "#c678dd" }}>const</span> <span style={{ color: "#e5c07b" }}>[focused, setFocused]</span> = useState(<span style={{ color: "#d19a66" }}>false</span>)</div>
+          <div><span style={{ color: "#555566" }}>  7</span></div>
+          <div><span style={{ color: "#555566" }}>  8</span>    <span style={{ color: "#5c6370" }}>// Terminal commands: help, about,</span></div>
+          <div><span style={{ color: "#555566" }}>  9</span>    <span style={{ color: "#5c6370" }}>// skills, projects, contact, clear</span></div>
+          <div><span style={{ color: "#555566" }}> 10</span>    <span style={{ color: "#c678dd" }}>return</span> (</div>
+          <div><span style={{ color: "#555566" }}> 11</span>      <span style={{ color: "#e06c75" }}>&lt;Canvas&gt;</span></div>
+          <div><span style={{ color: "#555566" }}> 12</span>        <span style={{ color: "#e06c75" }}>&lt;RetroComputer /&gt;</span></div>
+          <div><span style={{ color: "#555566" }}> 13</span>      <span style={{ color: "#e06c75" }}>&lt;/Canvas&gt;</span></div>
+          <div><span style={{ color: "#555566" }}> 14</span>    );</div>
+          <div><span style={{ color: "#555566" }}> 15</span>  {'}'}</div>
+          <div><span style={{ color: "#555566" }}> 16</span></div>
+          <div><span style={{ color: "#555566" }}> 17</span>  <span style={{ color: "#5c6370" }}>// C:\ hl_playground_terminal &gt; _</span></div>
+        </div>
         {/* Scanlines */}
         <div
-          className="absolute inset-0 pointer-events-none opacity-[0.05]"
+          className="absolute inset-0 pointer-events-none opacity-[0.04]"
           style={{
-            backgroundImage:
-              "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.3) 2px, rgba(0,0,0,0.3) 3px)",
+            backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.3) 2px, rgba(0,0,0,0.3) 3px)",
           }}
         />
         {/* Vignette */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            background:
-              "radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.5) 95%)",
+            background: "radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.4) 95%)",
           }}
         />
-
-        <div
-          className="flex-1 overflow-y-auto relative z-10"
-          style={{
-            fontFamily: "var(--font-mono), 'Courier New', monospace",
-            color: "#8bff8b",
-            textShadow:
-              "0 0 4px rgba(139,255,139,0.55), 0 0 10px rgba(139,255,139,0.18)",
-          }}
-        >
-          {history.map((entry, i) => (
-            <div key={i} className="mb-0.5">
-              {entry.type === "input" ? (
-                <div className="flex gap-1">
-                  <span style={{ color: "#c4b5fd" }}>C:\&gt;</span>
-                  <span style={{ color: "#e2e8f0" }}>
-                    {entry.text.replace("C:\\> ", "")}
-                  </span>
-                </div>
-              ) : (
-                <div className="whitespace-pre-wrap" style={{ color: "#8bff8b" }}>
-                  {entry.text}
-                </div>
-              )}
-            </div>
-          ))}
-          {/* Input line */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              submit();
-            }}
-            className="flex gap-1 mt-0.5"
-          >
-            <span style={{ color: "#c4b5fd", flexShrink: 0 }}>C:\&gt;</span>
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Escape") {
-                  (e.target as HTMLInputElement).blur();
-                  return;
-                }
-                handleKeyDown(e);
-              }}
-              onFocus={focus}
-              onBlur={blur}
-              className="flex-1 bg-transparent border-none outline-none font-mono text-[10px] sm:text-[11px] placeholder:text-white/10"
-              style={{
-                color: "#e2e8f0",
-                caretColor: "var(--color-accent-emerald)",
-              }}
-              placeholder="Type a command..."
-              spellCheck={false}
-              autoComplete="off"
-            />
-          </form>
-          <div ref={bottomRef} />
-        </div>
       </div>
     </div>
   );
 }
 
 /* ============================================
-   Playground — Terminal section with 3D model
+   Playground — Curated Workspace Scene
    ============================================ */
 export default function Playground() {
-  const terminal = useTerminal();
-  const reduce = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
+  const reduce = useReducedMotion();
   const [useFlatFallback, setUseFlatFallback] = useState(false);
 
-  // Check WebGL support
   useEffect(() => {
     try {
       const c = document.createElement("canvas");
@@ -158,12 +109,12 @@ export default function Playground() {
     <section
       id="playground"
       ref={sectionRef}
-      className="relative py-24 sm:py-32 px-6 overflow-visible"
+      className="relative py-24 sm:py-32 px-4 sm:px-6 overflow-visible"
     >
       {/* Top accent line */}
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-accent-violet/20 to-transparent" />
 
-      <div className="mx-auto max-w-[820px]">
+      <div className="mx-auto max-w-[960px]">
         {/* ---- Section heading ---- */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -173,76 +124,60 @@ export default function Playground() {
           className="mb-12 text-center"
         >
           <span className="inline-block text-xs font-semibold tracking-widest uppercase text-accent-violet-light mb-3">
-            Interactive
+            Workspace
           </span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-text-primary">
-            Terminal{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-violet-light to-accent-emerald-light">
-              Playground
+            Curated{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">
+              Setup
             </span>
           </h2>
           <p className="mt-3 text-sm text-text-muted max-w-md mx-auto">
-            Drag to orbit · scroll to zoom · click the screen to type commands.
+            A photorealistic 3D render of a developer workspace — CRT monitor, retro console, desk lamp, books, and wall art.
           </p>
         </motion.div>
 
         {/* ====================================================
-           3D VIEWPORT — cinematic entry
+           Workspace Render — cinematic entry
            ==================================================== */}
-        <div style={{ perspective: 2000 }} className="transform-gpu">
+        <div style={{ perspective: 1600 }} className="transform-gpu">
           <motion.div
             initial={
               reduce
                 ? false
                 : {
-                    rotateY: -25,
-                    rotateX: 6,
-                    y: 80,
-                    z: 40,
+                    y: 60,
                     opacity: 0,
-                    scale: 0.94,
+                    scale: 0.95,
                   }
             }
             whileInView={
               reduce
                 ? {}
                 : {
-                    rotateY: 0,
-                    rotateX: 0,
                     y: 0,
-                    z: 0,
                     opacity: 1,
                     scale: 1,
                   }
             }
-            viewport={{ once: false, amount: 0.1 }}
+            viewport={{ once: true, amount: 0.08 }}
             transition={{
               type: "spring",
-              stiffness: 38,
-              damping: 17,
-              mass: 1.4,
+              stiffness: 45,
+              damping: 20,
+              mass: 1.2,
             }}
             style={{
-              transformStyle: "preserve-3d",
-              transformOrigin: "center center",
               willChange: "transform, opacity",
             }}
           >
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-black/50 ring-1 ring-white/5">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-black/60 ring-1 ring-white/5">
               {useFlatFallback ? (
-                <FlatTerminal {...terminal} />
+                <FlatTerminal />
               ) : (
-                <RetroComputerR3F {...terminal} />
+                <CuratedWorkspace />
               )}
             </div>
-
-            {/* Hint */}
-            <p
-              className="mt-6 text-center text-xs text-text-muted"
-              style={{ fontFamily: "var(--font-mono), monospace" }}
-            >
-              Try: help · about · skills · projects · contact · clear
-            </p>
           </motion.div>
         </div>
       </div>
