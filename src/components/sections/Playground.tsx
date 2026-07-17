@@ -5,21 +5,21 @@ import { motion, useReducedMotion } from "framer-motion";
 import dynamic from "next/dynamic";
 
 /* ============================================
-   Dynamic imports — R3F runs client-only
+   Dynamic import — R3F runs client-only
    ============================================ */
-const CuratedWorkspace = dynamic(
-  () => import("@/components/CuratedWorkspace"),
+const TechArchaeologistLab = dynamic(
+  () => import("@/components/TechArchaeologistLab"),
   {
     ssr: false,
     loading: () => (
       <div
-        className="w-full rounded-2xl bg-bg-secondary/50 flex items-center justify-center"
-        style={{ aspectRatio: "16 / 10", maxHeight: 650 }}
+        className="w-full flex items-center justify-center bg-[#100e0c]"
+        style={{ minHeight: "70vh" }}
       >
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-full border-2 border-amber-400 border-t-transparent animate-spin" />
-          <span className="text-sm text-amber-200/80 font-mono">
-            Rendering workspace...
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-full border-2 border-amber-400/50 border-t-amber-400 animate-spin" />
+          <span className="text-sm text-amber-300/80 font-mono tracking-wide">
+            INITIALIZING DATA DIG...
           </span>
         </div>
       </div>
@@ -30,57 +30,59 @@ const CuratedWorkspace = dynamic(
 /* ============================================
    WebGL fallback — flat terminal
    ============================================ */
-function FlatTerminal() {
+function FlatFallback() {
   return (
-    <div
-      className="w-full rounded-2xl overflow-hidden border border-bg-surface/30"
-      style={{ aspectRatio: "16 / 10", maxHeight: 650 }}
-    >
-      <div
-        className="h-full w-full font-mono text-[11px] leading-relaxed p-5 flex flex-col"
-        style={{
-          fontFamily: "var(--font-mono), 'Courier New', monospace",
-          background: "#1a1a2e",
-          color: "#abb2bf",
-        }}
-      >
-        {/* Title bar */}
-        <div className="text-[#8899aa] font-bold mb-3 text-xs">
-          C:\ hl_playground_terminal &gt;
+    <div className="w-full bg-[#0d1117] flex flex-col" style={{ minHeight: "70vh" }}>
+      <div className="flex-1 font-mono p-8 max-w-4xl mx-auto w-full">
+        <div className="text-[#58a6ff] font-bold text-sm mb-6 border-b border-[#21262d] pb-3">
+          hl&gt; INITIALIZING DATA DIG... [SECTOR 7-A] [NODES: 2048]
         </div>
-        {/* Code content */}
-        <div className="flex-1 overflow-hidden space-y-0.5">
-          <div><span style={{ color: "#555566" }}>  1</span>  <span style={{ color: "#c678dd" }}>import</span> <span style={{ color: "#e5c07b" }}>{'{ useTerminal }'}</span> <span style={{ color: "#c678dd" }}>from</span> <span style={{ color: "#98c379" }}>&apos;@/hooks/useTerminal&apos;</span></div>
-          <div><span style={{ color: "#555566" }}>  2</span>  <span style={{ color: "#c678dd" }}>import</span> <span style={{ color: "#e5c07b" }}>RetroComputer</span> <span style={{ color: "#c678dd" }}>from</span> <span style={{ color: "#98c379" }}>&apos;./RetroComputerR3F&apos;</span></div>
-          <div><span style={{ color: "#555566" }}>  3</span></div>
-          <div><span style={{ color: "#555566" }}>  4</span>  <span style={{ color: "#c678dd" }}>export</span> <span style={{ color: "#c678dd" }}>default</span> <span style={{ color: "#c678dd" }}>function</span> <span style={{ color: "#61afef" }}>Playground</span>() {'{'}</div>
-          <div><span style={{ color: "#555566" }}>  5</span>    <span style={{ color: "#c678dd" }}>const</span> <span style={{ color: "#e5c07b" }}>terminal</span> = useTerminal()</div>
-          <div><span style={{ color: "#555566" }}>  6</span>    <span style={{ color: "#c678dd" }}>const</span> <span style={{ color: "#e5c07b" }}>[focused, setFocused]</span> = useState(<span style={{ color: "#d19a66" }}>false</span>)</div>
-          <div><span style={{ color: "#555566" }}>  7</span></div>
-          <div><span style={{ color: "#555566" }}>  8</span>    <span style={{ color: "#5c6370" }}>// Terminal commands: help, about,</span></div>
-          <div><span style={{ color: "#555566" }}>  9</span>    <span style={{ color: "#5c6370" }}>// skills, projects, contact, clear</span></div>
-          <div><span style={{ color: "#555566" }}> 10</span>    <span style={{ color: "#c678dd" }}>return</span> (</div>
-          <div><span style={{ color: "#555566" }}> 11</span>      <span style={{ color: "#e06c75" }}>&lt;Canvas&gt;</span></div>
-          <div><span style={{ color: "#555566" }}> 12</span>        <span style={{ color: "#e06c75" }}>&lt;RetroComputer /&gt;</span></div>
-          <div><span style={{ color: "#555566" }}> 13</span>      <span style={{ color: "#e06c75" }}>&lt;/Canvas&gt;</span></div>
-          <div><span style={{ color: "#555566" }}> 14</span>    );</div>
-          <div><span style={{ color: "#555566" }}> 15</span>  {'}'}</div>
-          <div><span style={{ color: "#555566" }}> 16</span></div>
-          <div><span style={{ color: "#555566" }}> 17</span>  <span style={{ color: "#5c6370" }}>// C:\ hl_playground_terminal &gt; _</span></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Main code panel */}
+          <div className="md:col-span-2 space-y-0.5 text-[11px] leading-relaxed">
+            <div><span style={{ color: "#484f58" }}>  1</span>  <span style={{ color: "#ff7b72" }}>const</span> <span style={{ color: "#d2a8ff" }}>archaeologist</span> = <span style={{ color: "#ff7b72" }}>new</span> <span style={{ color: "#79c0ff" }}>DataDig</span>();</div>
+            <div><span style={{ color: "#484f58" }}>  2</span>  <span style={{ color: "#ff7b72" }}>const</span> <span style={{ color: "#d2a8ff" }}>artifacts</span> = <span style={{ color: "#ff7b72" }}>await</span> <span style={{ color: "#79c0ff" }}>lab</span>.<span style={{ color: "#d2a8ff" }}>scanSector</span>(<span style={{ color: "#a5d6ff" }}>&apos;7A-FF02&apos;</span>);</div>
+            <div><span style={{ color: "#484f58" }}>  3</span></div>
+            <div><span style={{ color: "#484f58" }}>  4</span>  <span style={{ color: "#8b949e" }}>// Deep-scan retro hardware layer</span></div>
+            <div><span style={{ color: "#484f58" }}>  5</span>  <span style={{ color: "#ff7b72" }}>for</span> (<span style={{ color: "#ff7b72" }}>const</span> <span style={{ color: "#d2a8ff" }}>device</span> <span style={{ color: "#ff7b72" }}>of</span> <span style={{ color: "#d2a8ff" }}>artifacts</span>) {'{'}</div>
+            <div className="opacity-60">  6      if (device.vintage {'>'} 1995) {'{'}</div>
+            <div className="opacity-60">  7        await catalog(device.romDump());</div>
+            <div className="opacity-60">  8      {'}'}</div>
+            <div className="opacity-60">  9    {'}'}</div>
+            <div className="opacity-40"> 10</div>
+            <div className="opacity-40"> 11    console.log(&apos;Found &apos; + artifacts.length</div>
+            <div className="opacity-40"> 12      + &apos; retro devices in sector&apos;);</div>
+            <div><span style={{ color: "#484f58" }}> 21</span>  <span style={{ color: "#8b949e" }}>// hl&gt; _</span></div>
+          </div>
+          {/* Log panel */}
+          <div className="bg-[#0a0a0a] rounded p-3 text-[9px] space-y-0.5">
+            <div style={{ color: "#00ff88" }}>[12:04:32] NODE-7A  | PING 192.168.7.42   | 3.2ms</div>
+            <div style={{ color: "#88ccff" }}>[12:04:33] NODE-7B  | ACK from sector 7A  | OK</div>
+            <div style={{ color: "#aaaaaa" }}>[12:04:35] SWITCH-2 | Port 7 up           | 1000Mbps</div>
+            <div style={{ color: "#00ff88" }}>[12:04:38] ROUTER-0 | Route table update  | 2048 entries</div>
+            <div style={{ color: "#88ccff" }}>[12:04:41] MONITOR  | CPU: 42% MEM: 3.8GB | TEMP: 58C</div>
+            <div style={{ color: "#aaaaaa" }}>[12:04:44] DIG-ENGN | Scanning block 0x7A | 38% complete</div>
+            <div style={{ color: "#00ff88" }}>[12:04:47] DIG-ENGN | Found: ROM v2.4     | SEGA MD</div>
+            <div style={{ color: "#88ccff" }}>[12:04:50] DIG-ENGN | Found: PCB rev 3.1  | NES-001</div>
+          </div>
+          {/* Topology panel */}
+          <div className="bg-[#050510] rounded p-3 text-[9px]" style={{ color: "#88ffcc" }}>
+            <div className="font-bold mb-2" style={{ color: "#00ff88" }}>NETWORK TOPOLOGY — SECTOR 7A</div>
+            <pre className="font-mono leading-tight">
+              N0 ── N1 ── N2{'\n'}
+              │     │     │{'\n'}
+              N3 ── N4 ── N5{'\n'}
+              │     │     │{'\n'}
+              N6 ── N7 ── N8{'\n'}
+              │{'\n'}
+              N9
+            </pre>
+            <div className="mt-2 opacity-60">10 nodes · 11 edges · 3 components</div>
+          </div>
         </div>
         {/* Scanlines */}
-        <div
-          className="absolute inset-0 pointer-events-none opacity-[0.04]"
-          style={{
-            backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.3) 2px, rgba(0,0,0,0.3) 3px)",
-          }}
-        />
-        {/* Vignette */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: "radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.4) 95%)",
-          }}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.03]"
+          style={{ backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.3) 2px, rgba(0,0,0,0.3) 3px)" }}
         />
       </div>
     </div>
@@ -88,7 +90,7 @@ function FlatTerminal() {
 }
 
 /* ============================================
-   Playground — Curated Workspace Scene
+   Playground
    ============================================ */
 export default function Playground() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -98,88 +100,39 @@ export default function Playground() {
   useEffect(() => {
     try {
       const c = document.createElement("canvas");
-      const gl = c.getContext("webgl2") || c.getContext("webgl");
-      if (!gl) setUseFlatFallback(true);
-    } catch {
-      setUseFlatFallback(true);
-    }
+      if (!(c.getContext("webgl2") || c.getContext("webgl"))) {
+        setUseFlatFallback(true);
+      }
+    } catch { setUseFlatFallback(true); }
   }, []);
 
   return (
     <section
       id="playground"
       ref={sectionRef}
-      className="relative py-24 sm:py-32 px-4 sm:px-6 overflow-visible"
+      className="relative overflow-hidden"
     >
-      {/* Top accent line */}
-      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-accent-violet/20 to-transparent" />
+      {/* Top accent */}
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-500/20 to-transparent z-10" />
 
-      <div className="mx-auto max-w-[960px]">
-        {/* ---- Section heading ---- */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.5 }}
-          transition={{ duration: 0.5 }}
-          className="mb-12 text-center"
-        >
-          <span className="inline-block text-xs font-semibold tracking-widest uppercase text-accent-violet-light mb-3">
-            Workspace
-          </span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-text-primary">
-            Curated{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">
-              Setup
-            </span>
-          </h2>
-          <p className="mt-3 text-sm text-text-muted max-w-md mx-auto">
-            A photorealistic 3D render of a developer workspace — CRT monitor, retro console, desk lamp, books, and wall art.
-          </p>
-        </motion.div>
+      {/* ============================================
+          FULL-WIDTH — no border, no container limit
+          ============================================ */}
+      <motion.div
+        initial={reduce ? false : { opacity: 0, filter: "brightness(0.3)" }}
+        whileInView={reduce ? {} : { opacity: 1, filter: "brightness(1)" }}
+        viewport={{ once: true }}
+        transition={{ duration: 1.2, ease: "easeOut" }}
+        className="w-full"
+      >
+        {useFlatFallback ? <FlatFallback /> : <TechArchaeologistLab />}
+      </motion.div>
 
-        {/* ====================================================
-           Workspace Render — cinematic entry
-           ==================================================== */}
-        <div style={{ perspective: 1600 }} className="transform-gpu">
-          <motion.div
-            initial={
-              reduce
-                ? false
-                : {
-                    y: 60,
-                    opacity: 0,
-                    scale: 0.95,
-                  }
-            }
-            whileInView={
-              reduce
-                ? {}
-                : {
-                    y: 0,
-                    opacity: 1,
-                    scale: 1,
-                  }
-            }
-            viewport={{ once: true, amount: 0.08 }}
-            transition={{
-              type: "spring",
-              stiffness: 45,
-              damping: 20,
-              mass: 1.2,
-            }}
-            style={{
-              willChange: "transform, opacity",
-            }}
-          >
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-black/60 ring-1 ring-white/5">
-              {useFlatFallback ? (
-                <FlatTerminal />
-              ) : (
-                <CuratedWorkspace />
-              )}
-            </div>
-          </motion.div>
-        </div>
+      {/* Bottom label */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
+        <span className="text-[10px] text-amber-400/40 font-mono tracking-[0.25em] uppercase">
+          Tech-Archaeologist Research Station · Sector 7A
+        </span>
       </div>
     </section>
   );
