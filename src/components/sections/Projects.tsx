@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useInView } from "framer-motion";
+import Section3DWrapper from "@/components/Section3DWrapper";
 import {
   ExternalLink,
   FlaskConical,
@@ -181,11 +182,11 @@ function ProjectCard({
         delay: index * 0.08,
         ease: [0.25, 0.46, 0.45, 0.94],
       }}
-      className={`group relative flex flex-col rounded-2xl border border-bg-tertiary/60 bg-bg-secondary/50 p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${borderGlow}`}
+      className={`group relative flex flex-col overflow-hidden rounded-2xl border border-bg-tertiary/60 bg-bg-secondary/50 p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${borderGlow}`}
     >
-      {/* Accent top bar */}
+      {/* Accent top bar — clipped to card border-radius via overflow-hidden */}
       <div
-        className={`absolute top-0 inset-x-0 h-1 rounded-t-2xl ${
+        className={`absolute top-0 inset-x-0 h-1 ${
           project.accent === "violet"
             ? "bg-gradient-to-r from-accent-violet to-accent-violet-light"
             : "bg-gradient-to-r from-accent-emerald to-accent-emerald-light"
@@ -310,6 +311,7 @@ export default function Projects() {
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-accent-emerald/20 to-transparent" />
 
       <div className="mx-auto max-w-6xl">
+        <Section3DWrapper direction="right">
         {/* Section heading */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -398,6 +400,7 @@ export default function Projects() {
             )}
           </motion.div>
         </AnimatePresence>
+        </Section3DWrapper>
       </div>
     </section>
   );

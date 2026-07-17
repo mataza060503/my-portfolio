@@ -1,6 +1,24 @@
 {
   "version": 1,
   "skills": {
+    "3d-graphics": {
+      "source": "samhvw8/dotfiles",
+      "sourceType": "github",
+      "skillPath": "dot_ccp/hub/skills/3d-graphics/SKILL.md",
+      "computedHash": "19ff71d8671dffccdcd8216d86f3ab6b6260ff2addd190565512da288c552273"
+    },
+    "design-taste-frontend": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/taste-skill/SKILL.md",
+      "computedHash": "6d838b246d0e35d0b53f4f23f98ba7a1dd561937e64f7d0c7553b0928e376c3e"
+    },
+    "html-ppt-retro-quarterly-review": {
+      "source": "nexu-io/open-design",
+      "sourceType": "github",
+      "skillPath": "skills/html-ppt-retro-quarterly-review/SKILL.md",
+      "computedHash": "2eeb8087cb344b59f07f0e2c6d623d37718416d1e145633ed2758eaf8e4f6cc4"
+    },
     "lavish": {
       "source": "kunchenguid/lavish-axi",
       "sourceType": "github",

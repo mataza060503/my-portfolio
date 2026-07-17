@@ -1,16 +1,8 @@
 @import "tailwindcss";
 
 /* ============================================
-   Tailwind v4 — Class-based Dark Mode
-   Works with next-themes (attribute="class")
-   .dark class is present → dark mode (default)
-   .dark class absent → light mode
-   ============================================ */
-
-@custom-variant dark (&:where(.dark, .dark *));
-
-/* ============================================
-   Portfolio Theme — Dark Slate + Neon Accents (DEFAULT)
+   Premium Dark Theme — Permanent
+   Dark Slate / Charcoal + Neon Violet & Emerald
    ============================================ */
 
 @theme inline {
@@ -39,34 +31,6 @@
   --color-text-muted: #64748b;
 }
 
-/* ============================================
-   Light Theme Overrides
-   (applied when .dark class is absent)
-   ============================================ */
-
-html:not(.dark) {
-  /* Background Palette — Cool Gray / White */
-  --color-bg-primary: #f8fafc;
-  --color-bg-secondary: #f1f5f9;
-  --color-bg-tertiary: #e2e8f0;
-  --color-bg-surface: #cbd5e1;
-
-  /* Text */
-  --color-text-primary: #0f172a;
-  --color-text-secondary: #475569;
-  --color-text-muted: #94a3b8;
-
-  /* Accent — Violet (slightly punchier for contrast on light) */
-  --color-accent-violet: #7c3aed;
-  --color-accent-violet-light: #8b5cf6;
-  --color-accent-violet-glow: #a78bfa;
-
-  /* Accent — Emerald */
-  --color-accent-emerald: #059669;
-  --color-accent-emerald-light: #10b981;
-  --color-accent-emerald-glow: #34d399;
-}
-
 /* Base */
 body {
   font-family: var(--font-sans), system-ui, sans-serif;
@@ -91,11 +55,8 @@ body {
   background: var(--color-text-muted);
 }
 
-/* Subtle theme-aware grid pattern */
-html:not(.dark) .dot-grid {
-  opacity: 0.06;
-}
-.dark .dot-grid {
+/* Subtle grid pattern — dark theme only */
+.dot-grid {
   opacity: 0.03;
 }
 
@@ -103,4 +64,21 @@ html:not(.dark) .dot-grid {
 ::selection {
   background: var(--color-accent-violet);
   color: #fff;
+}
+
+/* ============================================
+   Performance — GPU compositing hints
+   for scroll-driven animated elements
+   ============================================ */
+
+.motion-safe .transform-gpu {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Neon scroll progress bar glow */
+.neon-progress {
+  box-shadow:
+    0 0 12px var(--color-accent-violet),
+    0 0 4px var(--color-accent-emerald);
 }

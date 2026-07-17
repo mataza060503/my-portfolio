@@ -3,6 +3,7 @@
 import { useState, useRef, useActionState, useEffect, useCallback } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { Send, Check, AlertCircle, MapPin, Mail, BookOpen, X } from "lucide-react";
+import Section3DWrapper from "@/components/Section3DWrapper";
 import { sendEmail, type ContactFormState } from "@/app/actions/sendEmail";
 
 /* ============================================
@@ -79,6 +80,7 @@ export default function Contact() {
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-accent-emerald/20 to-transparent" />
 
       <div className="mx-auto max-w-5xl">
+        <Section3DWrapper direction="bottom">
         {/* Section heading */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -244,6 +246,7 @@ export default function Contact() {
             </form>
           </motion.div>
         </div>
+        </Section3DWrapper>
       </div>
 
       {/* Toast notification */}

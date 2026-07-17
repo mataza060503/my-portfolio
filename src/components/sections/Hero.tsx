@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef, useState, useCallback } from "react";
+import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { ArrowDown, Mail, FolderGit2 } from "lucide-react";
 import { useTypewriter } from "@/hooks/useTypewriter";
 
@@ -26,8 +27,137 @@ const itemVariants = {
   },
 };
 
+/* ============================================
+   3D Floating Badge — cinematic continuous
+   rotation + mouse-driven tilt
+   ============================================ */
+
+function Floating3DBadge() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const nx = (e.clientX - centerX) / (rect.width / 2);
+      const ny = (e.clientY - centerY) / (rect.height / 2);
+      setTilt({ x: -ny * 12, y: nx * 12 });
+    },
+    [],
+  );
+
+  const handleMouseLeave = useCallback(() => {
+    setTilt({ x: 0, y: 0 });
+  }, []);
+
+  return (
+    <div
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="relative"
+      style={{ perspective: 1000 }}
+    >
+      <motion.div
+        animate={{
+          rotateX: tilt.x,
+          rotateY: tilt.y,
+        }}
+        transition={{
+          type: "spring",
+          stiffness: 200,
+          damping: 20,
+        }}
+        className="relative"
+        style={{ transformStyle: "preserve-3d" }}
+      >
+        <motion.div
+          animate={{
+            y: [0, -14, 0],
+            rotateX: [0, 8, -6, 0],
+            rotateY: [0, 10, -8, 0],
+          }}
+          transition={{
+            repeat: Infinity,
+            duration: 7,
+            ease: "easeInOut",
+          }}
+        >
+          {/* Outer glow ring */}
+          <div className="absolute -inset-3 rounded-3xl bg-accent-violet/10 blur-2xl" />
+
+          {/* The badge card */}
+          <div className="relative rounded-2xl border border-accent-violet/30 bg-bg-secondary/80 backdrop-blur-xl px-6 py-5 shadow-2xl shadow-accent-violet/10">
+            {/* Inner highlight */}
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-accent-violet/5 to-transparent" />
+
+            <div className="relative flex items-center gap-4">
+              {/* Tech stack icon grid */}
+              <div className="grid grid-cols-2 gap-1.5">
+                {["React", "Django", "Flutter", ".NET"].map((tech) => (
+                  <span
+                    key={tech}
+                    className="inline-flex items-center justify-center rounded-lg bg-bg-tertiary/70 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-accent-violet-light border border-accent-violet/20"
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
+
+              {/* Divider */}
+              <div className="h-12 w-px bg-gradient-to-b from-transparent via-accent-violet/30 to-transparent" />
+
+              {/* Metric */}
+              <div className="text-center">
+                <div className="text-3xl font-bold text-text-primary tracking-tight">
+                  1<span className="text-accent-violet-light">+</span>
+                </div>
+                <div className="text-[10px] font-medium uppercase tracking-widest text-text-muted mt-0.5 leading-tight">
+                  Year Exp
+                </div>
+                <div className="text-[9px] font-medium text-accent-violet-light/70 mt-0.5 leading-tight max-w-[100px]">
+                  AI &amp; Full-Stack Developer
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom accent line */}
+            <div className="relative mt-4 pt-3 border-t border-bg-tertiary/40">
+              <div className="flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-accent-emerald animate-pulse" />
+                <span className="text-[10px] font-medium uppercase tracking-wider text-accent-emerald-light">
+                  Open to work
+                </span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+}
+
+/* ============================================
+   Hero Section
+   ============================================ */
+
 export default function Hero() {
   const typedText = useTypewriter({ texts: TITLES });
+  const heroRef = useRef<HTMLElement>(null);
+  const reduce = useReducedMotion();
+
+  // Scroll-driven parallax for ambient orbs
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const orbVioletY = useTransform(scrollYProgress, [0, 1], [0, 80]);
+  const orbEmeraldY = useTransform(scrollYProgress, [0, 1], [0, -50]);
+  const orbScale = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.05, 0.9]);
+  const gridY = useTransform(scrollYProgress, [0, 1], [0, -20]);
 
   const scrollTo = (href: string) => {
     const el = document.querySelector(href);
@@ -37,21 +167,38 @@ export default function Hero() {
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden px-6"
+      ref={heroRef}
+      className="relative min-h-screen flex items-center justify-center overflow-hidden px-6 pt-20"
     >
-      {/* Background ambient orbs */}
+      {/* Background ambient orbs — parallax driven */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-accent-violet/10 blur-[120px]" />
-        <div className="absolute -bottom-32 -left-32 w-[400px] h-[400px] rounded-full bg-accent-emerald/8 blur-[100px]" />
+        <motion.div
+          className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-accent-violet/10 blur-[120px]"
+          style={{
+            y: reduce ? 0 : orbVioletY,
+            scale: reduce ? 1 : orbScale,
+            willChange: "transform",
+          }}
+        />
+        <motion.div
+          className="absolute -bottom-32 -left-32 w-[400px] h-[400px] rounded-full bg-accent-emerald/8 blur-[100px]"
+          style={{
+            y: reduce ? 0 : orbEmeraldY,
+            scale: reduce ? 1 : orbScale,
+            willChange: "transform",
+          }}
+        />
       </div>
 
-      {/* Decorative grid pattern (subtle) */}
-      <div
+      {/* Decorative grid pattern — parallax */}
+      <motion.div
         className="absolute inset-0 dot-grid"
         style={{
+          y: reduce ? 0 : gridY,
           backgroundImage:
             "radial-gradient(circle, var(--color-bg-surface) 1px, transparent 1px)",
           backgroundSize: "48px 48px",
+          willChange: "transform",
         }}
       />
 
@@ -103,6 +250,14 @@ export default function Hero() {
           (WMS/TPM/PMS), and ship full-stack solutions with React, Django,
           .NET &amp; Flutter.
         </motion.p>
+
+        {/* 3D Floating Tech Badge */}
+        <motion.div
+          variants={itemVariants}
+          className="mt-12"
+        >
+          <Floating3DBadge />
+        </motion.div>
 
         {/* CTAs */}
         <motion.div

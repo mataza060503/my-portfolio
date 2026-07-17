@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import ThemeToggle from "@/components/ThemeToggle";
 
 /* Inline brand SVGs (lucide doesn't ship GitHub / LinkedIn) */
 function GithubIcon({ size = 18 }: { size?: number }) {
@@ -118,9 +117,8 @@ export default function Header() {
           </div>
         </nav>
 
-        {/* Theme toggle + mobile hamburger */}
+        {/* Mobile hamburger */}
         <div className="flex items-center gap-1">
-          <ThemeToggle />
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="md:hidden text-text-primary p-1 -mr-1"

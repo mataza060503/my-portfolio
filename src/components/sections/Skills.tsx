@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useInView } from "framer-motion";
+import Section3DWrapper from "@/components/Section3DWrapper";
 import {
   Code2,
   Globe,
@@ -161,90 +162,92 @@ export default function Skills() {
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-accent-violet/20 to-transparent" />
 
       <div className="mx-auto max-w-5xl">
-        {/* Section heading */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5 }}
-          className="mb-12 text-center"
-        >
-          <span className="inline-block text-xs font-semibold tracking-widest uppercase text-accent-violet-light mb-3">
-            Tech Stack
-          </span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-text-primary">
-            Skills &amp;{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-violet-light to-accent-emerald-light">
-              Expertise
+        <Section3DWrapper direction="left">
+          {/* Section heading */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5 }}
+            className="mb-12 text-center"
+          >
+            <span className="inline-block text-xs font-semibold tracking-widest uppercase text-accent-violet-light mb-3">
+              Tech Stack
             </span>
-          </h2>
-        </motion.div>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-text-primary">
+              Skills &amp;{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-violet-light to-accent-emerald-light">
+                Expertise
+              </span>
+            </h2>
+          </motion.div>
 
-        {/* Category tabs */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="mb-10"
-        >
-          {/* Desktop tabs */}
-          <div className="hidden sm:flex justify-center gap-2">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setActiveTab(cat.id)}
-                className={`relative px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 ${
-                  activeTab === cat.id
-                    ? "text-white bg-accent-violet/20 border border-accent-violet/40 shadow-[0_0_20px_rgba(139,92,246,0.15)]"
-                    : "text-text-secondary border border-transparent hover:text-text-primary hover:bg-bg-tertiary/40"
-                }`}
-              >
-                {cat.label}
-                {activeTab === cat.id && (
-                  <motion.div
-                    layoutId="activeTabIndicator"
-                    className="absolute inset-0 rounded-xl bg-accent-violet/10 border border-accent-violet/30"
-                    transition={{ type: "spring", stiffness: 300, damping: 28 }}
-                  />
-                )}
-              </button>
-            ))}
-          </div>
-
-          {/* Mobile scrollable tabs */}
-          <div className="sm:hidden flex gap-2 overflow-x-auto pb-2 -mx-6 px-6 scrollbar-none">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setActiveTab(cat.id)}
-                className={`shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
-                  activeTab === cat.id
-                    ? "text-white bg-accent-violet/20 border border-accent-violet/40"
-                    : "text-text-secondary border border-transparent hover:text-text-primary"
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Skill grid */}
-        <div className="min-h-[240px]">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.25 }}
-              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4"
-            >
-              {activeCategory.skills.map((skill, i) => (
-                <SkillCard key={skill.name} skill={skill} index={i} />
+          {/* Category tabs */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="mb-10"
+          >
+            {/* Desktop tabs */}
+            <div className="hidden sm:flex justify-center gap-2">
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveTab(cat.id)}
+                  className={`relative px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 ${
+                    activeTab === cat.id
+                      ? "text-white bg-accent-violet/20 border border-accent-violet/40 shadow-[0_0_20px_rgba(139,92,246,0.15)]"
+                      : "text-text-secondary border border-transparent hover:text-text-primary hover:bg-bg-tertiary/40"
+                  }`}
+                >
+                  {cat.label}
+                  {activeTab === cat.id && (
+                    <motion.div
+                      layoutId="activeTabIndicator"
+                      className="absolute inset-0 rounded-xl bg-accent-violet/10 border border-accent-violet/30"
+                      transition={{ type: "spring", stiffness: 300, damping: 28 }}
+                    />
+                  )}
+                </button>
               ))}
-            </motion.div>
-          </AnimatePresence>
-        </div>
+            </div>
+
+            {/* Mobile scrollable tabs */}
+            <div className="sm:hidden flex gap-2 overflow-x-auto pb-2 -mx-6 px-6 scrollbar-none">
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveTab(cat.id)}
+                  className={`shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
+                    activeTab === cat.id
+                      ? "text-white bg-accent-violet/20 border border-accent-violet/40"
+                      : "text-text-secondary border border-transparent hover:text-text-primary"
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Skill grid */}
+          <div className="min-h-[240px]">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.25 }}
+                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4"
+              >
+                {activeCategory.skills.map((skill, i) => (
+                  <SkillCard key={skill.name} skill={skill} index={i} />
+                ))}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </Section3DWrapper>
       </div>
     </section>
   );
