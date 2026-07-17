@@ -6,7 +6,7 @@ export default function Footer() {
           &copy; {new Date().getFullYear()} Vo Hoang Lam. Built with Next.js &amp; Tailwind CSS.
         </p>
         <p className="text-xs text-text-muted">
-          Dong Nai, Vietnam &mdash; vohoanglam060503@gmail.com
+          Dong Nai, Vietnam &mdash; liamvo0605.work@gmail.com
         </p>
       </div>
     </footer>

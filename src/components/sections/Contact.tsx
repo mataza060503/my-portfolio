@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { motion, useInView } from "framer-motion";
-import { Send, Check, AlertCircle, MapPin, Mail, BookOpen } from "lucide-react";
+import { useState, useRef, useActionState, useEffect, useCallback } from "react";
+import { motion, useInView, AnimatePresence } from "framer-motion";
+import { Send, Check, AlertCircle, MapPin, Mail, BookOpen, X } from "lucide-react";
+import { sendEmail, type ContactFormState } from "@/app/actions/sendEmail";
 
 /* ============================================
    Inline brand SVGs
@@ -42,9 +43,12 @@ function LinkedinIcon({ size = 18 }: { size?: number }) {
    Contact Section
    ============================================ */
 
+const initialState: ContactFormState = { success: false, message: "" };
+
 export default function Contact() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
-  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [state, formAction, pending] = useActionState(sendEmail, initialState);
+  const [toast, setToast] = useState<ContactFormState | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
 
@@ -52,19 +56,17 @@ export default function Contact() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.name || !form.email || !form.message) return;
+  // Show toast when state changes (after action completes)
+  useEffect(() => {
+    if (state.message) {
+      setToast(state);
+      if (state.success) {
+        setForm({ name: "", email: "", message: "" });
+      }
+    }
+  }, [state]);
 
-    setStatus("sending");
-
-    // Simulate sending (replace with actual form handler)
-    setTimeout(() => {
-      setStatus("sent");
-      setForm({ name: "", email: "", message: "" });
-      setTimeout(() => setStatus("idle"), 3000);
-    }, 1000);
-  };
+  const dismissToast = useCallback(() => setToast(null), []);
 
   const isValid = form.name && form.email && form.message;
 
@@ -115,7 +117,7 @@ export default function Contact() {
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-text-secondary">
                 <Mail size={16} className="text-accent-violet-light shrink-0" />
-                <span className="text-sm">vohoanglam060503@gmail.com</span>
+                <span className="text-sm">liamvo0605.work@gmail.com</span>
               </div>
               <div className="flex items-center gap-3 text-text-secondary">
                 <MapPin size={16} className="text-accent-emerald-light shrink-0" />
@@ -158,7 +160,7 @@ export default function Contact() {
             className="lg:col-span-3"
           >
             <form
-              onSubmit={handleSubmit}
+              action={formAction}
               className="rounded-2xl border border-bg-tertiary/60 bg-bg-secondary/50 backdrop-blur p-6 sm:p-8 space-y-6"
             >
               <div className="grid gap-6 sm:grid-cols-2">
@@ -218,24 +220,19 @@ export default function Contact() {
 
               <button
                 type="submit"
-                disabled={!isValid || status === "sending" || status === "sent"}
+                disabled={!isValid || pending}
                 className={`inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition-all ${
-                  status === "sent"
-                    ? "bg-accent-emerald text-white shadow-lg shadow-accent-emerald/20"
+                  pending
+                    ? "bg-accent-violet/60 text-white/80 cursor-wait"
                     : isValid
                       ? "bg-accent-violet text-white shadow-lg shadow-accent-violet/20 hover:bg-accent-violet-light active:scale-95"
                       : "bg-bg-tertiary/50 text-text-muted cursor-not-allowed"
                 }`}
               >
-                {status === "sending" ? (
+                {pending ? (
                   <>
                     <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                     Sending...
-                  </>
-                ) : status === "sent" ? (
-                  <>
-                    <Check size={16} />
-                    Message Sent!
                   </>
                 ) : (
                   <>
@@ -244,17 +241,49 @@ export default function Contact() {
                   </>
                 )}
               </button>
-
-              {status === "error" && (
-                <div className="flex items-center gap-2 text-sm text-red-400">
-                  <AlertCircle size={16} />
-                  Something went wrong. Please try again.
-                </div>
-              )}
             </form>
           </motion.div>
         </div>
       </div>
+
+      {/* Toast notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 40, x: "-50%" }}
+            animate={{ opacity: 1, y: 0, x: "-50%" }}
+            exit={{ opacity: 0, y: 20, x: "-50%" }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+            className="fixed bottom-6 left-1/2 z-50 flex items-center gap-3 rounded-2xl border px-5 py-4 text-sm font-medium shadow-2xl backdrop-blur-md max-w-sm w-[calc(100%-2rem)] sm:w-auto"
+            style={{
+              background: toast.success
+                ? "linear-gradient(135deg, rgba(16,185,129,0.12), rgba(16,185,129,0.04))"
+                : "linear-gradient(135deg, rgba(239,68,68,0.12), rgba(239,68,68,0.04))",
+              borderColor: toast.success
+                ? "rgba(52,211,153,0.35)"
+                : "rgba(248,113,113,0.35)",
+            }}
+          >
+            <span
+              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+                toast.success
+                  ? "bg-accent-emerald/20 text-accent-emerald-light"
+                  : "bg-red-500/20 text-red-400"
+              }`}
+            >
+              {toast.success ? <Check size={16} /> : <AlertCircle size={16} />}
+            </span>
+            <span className="text-text-primary">{toast.message}</span>
+            <button
+              onClick={dismissToast}
+              className="ml-1 shrink-0 rounded-lg p-1 text-text-muted hover:text-text-primary hover:bg-bg-tertiary/50 transition-colors"
+              aria-label="Dismiss notification"
+            >
+              <X size={14} />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

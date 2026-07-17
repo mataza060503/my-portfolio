@@ -57,9 +57,9 @@ const COMMANDS: Record<string, string | string[]> = {
   ],
   contact: [
     "┌─ Contact ─────────────────────────────┐",
-    "│ Email:   vohoanglam060503@gmail.com   │",
+    "│ Email:   liamvo0605.work@gmail.com   │",
     "│ GitHub:  github.com/mataza060503      │",
-    "│ LinkedIn: linkedin.com/in/lamvo       │",
+    "│ LinkedIn: linkedin.com/in/lâm-võ-4716a1252       │",
     "│ Location: Dong Nai, Vietnam           │",
     "└────────────────────────────────────────┘",
   ],

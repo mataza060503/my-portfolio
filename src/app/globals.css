@@ -30,6 +30,33 @@
   --color-text-muted: #64748b;
 }
 
+/* ============================================
+   Light Theme Overrides
+   ============================================ */
+
+[data-theme="light"] {
+  /* Background Palette — Cool Gray / White */
+  --color-bg-primary: #f8fafc;
+  --color-bg-secondary: #f1f5f9;
+  --color-bg-tertiary: #e2e8f0;
+  --color-bg-surface: #cbd5e1;
+
+  /* Text */
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94a3b8;
+
+  /* Accent — Violet (slightly punchier for contrast on light) */
+  --color-accent-violet: #7c3aed;
+  --color-accent-violet-light: #8b5cf6;
+  --color-accent-violet-glow: #a78bfa;
+
+  /* Accent — Emerald */
+  --color-accent-emerald: #059669;
+  --color-accent-emerald-light: #10b981;
+  --color-accent-emerald-glow: #34d399;
+}
+
 /* Base */
 body {
   font-family: var(--font-sans), system-ui, sans-serif;
@@ -44,7 +71,7 @@ body {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-bg-primary);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
   background: var(--color-bg-surface);
@@ -52,6 +79,14 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-muted);
+}
+
+/* Subtle theme-aware grid pattern */
+[data-theme="light"] .dot-grid {
+  opacity: 0.06;
+}
+[data-theme="dark"] .dot-grid {
+  opacity: 0.03;
 }
 
 /* Selection */

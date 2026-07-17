@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Sun, Moon } from "lucide-react";
+import { useTheme } from "@/components/ThemeProvider";
 
 /* Inline brand SVGs (lucide doesn't ship GitHub / LinkedIn) */
 function GithubIcon({ size = 18 }: { size?: number }) {
@@ -46,6 +47,7 @@ const NAV_LINKS = [
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { theme, toggle: toggleTheme } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -71,7 +73,7 @@ export default function Header() {
     <header
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-bg-primary/80 backdrop-blur-xl shadow-lg shadow-black/20 border-b border-bg-tertiary/50"
+          ? "bg-bg-primary/80 backdrop-blur-xl shadow-lg shadow-black/10 border-b border-bg-tertiary/50"
           : "bg-transparent"
       }`}
     >
@@ -97,7 +99,7 @@ export default function Header() {
           ))}
           <div className="flex items-center gap-4 ml-4 pl-4 border-l border-bg-tertiary">
             <a
-              href="https://github.com/hoanglamvo"
+              href="https://github.com/mataza060503"
               target="_blank"
               rel="noopener noreferrer"
               className="text-text-secondary hover:text-accent-violet-light transition-colors"
@@ -106,7 +108,7 @@ export default function Header() {
               <GithubIcon size={18} />
             </a>
             <a
-              href="https://linkedin.com/in/hoanglamvo"
+              href="https://www.linkedin.com/in/l%C3%A2m-v%C3%B5-4716a1252/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-text-secondary hover:text-accent-violet-light transition-colors"
@@ -117,14 +119,23 @@ export default function Header() {
           </div>
         </nav>
 
-        {/* Mobile hamburger */}
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden text-text-primary p-1 -mr-1"
-          aria-label="Toggle menu"
-        >
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        {/* Theme toggle + mobile hamburger */}
+        <div className="flex items-center gap-1">
+          <button
+            onClick={toggleTheme}
+            className="rounded-lg p-2 text-text-secondary hover:text-accent-violet-light hover:bg-bg-tertiary/40 transition-colors"
+            aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="md:hidden text-text-primary p-1 -mr-1"
+            aria-label="Toggle menu"
+          >
+            {isOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile drawer */}
@@ -149,7 +160,7 @@ export default function Header() {
               ))}
               <div className="flex items-center gap-5 pt-4 mt-2 border-t border-bg-tertiary/50">
                 <a
-                  href="https://github.com/hoanglamvo"
+                  href="https://github.com/mataza060503"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-text-secondary hover:text-accent-violet-light transition-colors"
@@ -158,7 +169,7 @@ export default function Header() {
                   <GithubIcon size={20} />
                 </a>
                 <a
-                  href="https://linkedin.com/in/hoanglamvo"
+                  href="https://www.linkedin.com/in/l%C3%A2m-v%C3%B5-4716a1252/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-text-secondary hover:text-accent-violet-light transition-colors"

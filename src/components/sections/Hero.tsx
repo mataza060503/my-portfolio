@@ -47,10 +47,10 @@ export default function Hero() {
 
       {/* Decorative grid pattern (subtle) */}
       <div
-        className="absolute inset-0 opacity-[0.03]"
+        className="absolute inset-0 dot-grid"
         style={{
           backgroundImage:
-            "radial-gradient(circle, rgb(148 163 184) 1px, transparent 1px)",
+            "radial-gradient(circle, var(--color-bg-surface) 1px, transparent 1px)",
           backgroundSize: "48px 48px",
         }}
       />
