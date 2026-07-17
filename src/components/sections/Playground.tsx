@@ -99,7 +99,7 @@ export default function Playground() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] pointer-events-none"
         style={{ background: "radial-gradient(ellipse at 40% 60%, rgba(139,92,246,0.06) 0%, transparent 55%), radial-gradient(ellipse at 60% 40%, rgba(16,185,129,0.05) 0%, transparent 55%)" }} />
 
-      <div ref={containerRef} className="mx-auto max-w-[840px]">
+      <div ref={containerRef} className="mx-auto max-w-[900px]">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.5 }} transition={{ duration: 0.5 }} className="mb-14 text-center">
           <span className="inline-block text-[10px] font-semibold tracking-[0.2em] uppercase text-accent-violet-light mb-3">Interactive</span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-text-primary">Terminal <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-violet-light to-accent-emerald-light">Playground</span></h2>
@@ -108,25 +108,23 @@ export default function Playground() {
         <motion.div initial={reduce ? false : { opacity: 0, y: 30 }} whileInView={reduce ? {} : { opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: 0.15 }}>
           
           {/* ============================================
-              3D PERSPECTIVE STAGE — Case + Monitor stacked
+              SIDE-BY-SIDE — swap prominence on boot
               ============================================ */}
-          <div className="relative" style={{ perspective: 1200, minHeight: 520 }}>
-            
-            {/* ── BACKGROUND LAYER: Monitor (comes forward when on) ── */}
-            <motion.div className="w-full"
+          <div className="flex items-end justify-center gap-0" style={{ perspective: 1400 }}>
+
+            {/* ── MONITOR (left, becomes prominent when on) ── */}
+            <motion.div className="relative flex-shrink-0"
+              style={{ width: "72%", maxWidth: 640, zIndex: isPoweredOn ? 20 : 5 }}
               animate={{
-                translateZ: isPoweredOn ? 0 : -180,
-                scale: isPoweredOn ? 1 : 0.88,
-                opacity: isPoweredOn ? 1 : 0.55,
-                filter: isPoweredOn ? "blur(0px)" : "blur(1px)",
-                rotateX: isPoweredOn ? 0 : 4,
+                x: isPoweredOn ? 0 : -30,
+                scale: isPoweredOn ? 1 : 0.84,
+                opacity: isPoweredOn ? 1 : 0.4,
+                filter: isPoweredOn ? "blur(0px)" : "blur(1.5px)",
+                rotateY: isPoweredOn ? 0 : 6,
               }}
-              transition={{ type: "spring", stiffness: 45, damping: 22, mass: 1.2 }}
-              style={{ transformStyle: "preserve-3d", transformOrigin: "center center" }}>
-              
-              {/* Monitor */}
-              <div className="w-full max-w-[640px] mx-auto rounded-xl overflow-hidden"
-                style={{ background: "#16161e", boxShadow: "0 0 0 1px rgba(255,255,255,0.06), 0 24px 64px rgba(0,0,0,0.6), 0 0 80px rgba(139,92,246,0.04)" }}>
+              transition={{ type: "spring", stiffness: 38, damping: 19, mass: 1.15 }}>
+              <div className="w-full rounded-xl overflow-hidden"
+                style={{ background: "#16161e", boxShadow: "0 0 0 1px rgba(255,255,255,0.06), 0 24px 64px rgba(0,0,0,0.6)" }}>
                 <div className="h-[6px] bg-[#1a1a24]" />
                 <div className="relative cursor-text overflow-hidden" style={{ background: isPoweredOn ? "#0a0a10" : "#06060c", height: 420 }} onClick={handleScreenClick}>
                   <AnimatePresence>{bootFlash && <motion.div className="absolute inset-0 z-30 pointer-events-none" initial={{ opacity: 1, background: "#ffffff" }} animate={{ opacity: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }} />}</AnimatePresence>
@@ -134,10 +132,10 @@ export default function Playground() {
                   <AnimatePresence>
                     {surpriseActive && (
                       <div className="absolute inset-0 z-25 pointer-events-none">
-                        {Array.from({ length: 24 }).map((_, i) => (
+                        {Array.from({ length: 20 }).map((_, i) => (
                           <motion.div key={i} className="absolute w-[3px] h-[3px] rounded-full"
-                            style={{ left: "50%", top: "50%", background: ["#22d3ee","#8b5cf6","#10b981","#f59e0b","#ec4899","#a78bfa"][i%6], boxShadow: `0 0 6px ${["#22d3ee","#8b5cf6","#10b981","#f59e0b","#ec4899","#a78bfa"][i%6]}` }}
-                            initial={{ x: 0, y: 0, opacity: 1, scale: 1 }} animate={{ x: (Math.random()-0.5)*350, y: (Math.random()-0.5)*220, opacity: 0, scale: 0 }} transition={{ duration: 1+Math.random()*1.5, ease: "easeOut" }} />
+                            style={{ left: "50%", top: "50%", background: ["#22d3ee","#8b5cf6","#10b981","#f59e0b","#ec4899"][i%5], boxShadow: `0 0 6px ${["#22d3ee","#8b5cf6","#10b981","#f59e0b","#ec4899"][i%5]}` }}
+                            initial={{ x: 0, y: 0, opacity: 1, scale: 1 }} animate={{ x: (Math.random()-0.5)*300, y: (Math.random()-0.5)*200, opacity: 0, scale: 0 }} transition={{ duration: 1+Math.random()*1.5, ease: "easeOut" }} />
                         ))}
                       </div>
                     )}
@@ -147,12 +145,12 @@ export default function Playground() {
                     <AnimatePresence mode="wait">
                       {!isPoweredOn && !isBooting && (
                         <motion.div key="off" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center h-full">
-                          <div className="relative mb-6" style={{ animation: "pulseModern 3s ease-in-out infinite" }}>
-                            <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ border: "2px solid rgba(139,92,246,0.2)", boxShadow: "0 0 30px rgba(139,92,246,0.06)" }}>
-                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(139,92,246,0.35)" strokeWidth="2" strokeLinecap="round"><path d="M12 2v10" /><path d="M18.4 6.6a9 9 0 1 1-12.8 0" /></svg>
+                          <div className="relative mb-4" style={{ animation: "pulseModern 3s ease-in-out infinite" }}>
+                            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ border: "2px solid rgba(139,92,246,0.2)", boxShadow: "0 0 30px rgba(139,92,246,0.05)" }}>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(139,92,246,0.3)" strokeWidth="2" strokeLinecap="round"><path d="M12 2v10" /><path d="M18.4 6.6a9 9 0 1 1-12.8 0" /></svg>
                             </div>
                           </div>
-                          <p className="text-[11px] tracking-[0.25em] uppercase text-text-muted/30">Display Offline</p>
+                          <p className="text-[11px] tracking-[0.2em] uppercase text-text-muted/25">Click the tower to boot</p>
                         </motion.div>
                       )}
                       {isBooting && !isPoweredOn && (
@@ -193,107 +191,82 @@ export default function Playground() {
                   <span className="w-[4px] h-[4px] rounded-full transition-all duration-700" style={{ backgroundColor: isPoweredOn?"#10b981":"#334155", boxShadow: isPoweredOn?"0 0 6px rgba(16,185,129,0.6)":"none" }} />
                 </div>
               </div>
+              <div className="flex flex-col items-center -mt-[1px]">
+                <div className="w-8 h-6 rounded-b-sm" style={{ background:"linear-gradient(180deg,#1a1a24,#222230)",borderLeft:"1px solid rgba(255,255,255,0.04)",borderRight:"1px solid rgba(255,255,255,0.04)",borderBottom:"1px solid rgba(255,255,255,0.04)" }} />
+                <div className="w-28 h-2 rounded-b-lg" style={{ background:"#1a1a24",boxShadow:"0 8px 24px rgba(0,0,0,0.5)",border:"1px solid rgba(255,255,255,0.04)" }} />
+              </div>
             </motion.div>
 
-            {/* ── FOREGROUND LAYER: PC Case (retreats when on) ── */}
-            <motion.div
-              className="absolute inset-x-0 flex justify-center pointer-events-none"
-              style={{ top: isPoweredOn ? "auto" : "40%", bottom: isPoweredOn ? "10px" : "auto", zIndex: isPoweredOn ? 5 : 20 }}
+            {/* ── PC CASE (right, prominent when off, retreats when on) ── */}
+            <motion.div className="flex-shrink-0"
+              style={{ width: "24%", minWidth: 170, maxWidth: 240, zIndex: isPoweredOn ? 3 : 20 }}
+              onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}
               animate={{
-                translateZ: isPoweredOn ? -120 : 40,
-                scale: isPoweredOn ? 0.65 : 1.05,
-                opacity: isPoweredOn ? 0.35 : 1,
-                y: isPoweredOn ? 30 : 0,
+                x: isPoweredOn ? 50 : 0,
+                scale: isPoweredOn ? 0.65 : 1,
+                opacity: isPoweredOn ? 0.12 : 1,
+                rotateY: isPoweredOn ? -18 : 0,
               }}
-              transition={{ type: "spring", stiffness: 40, damping: 20, mass: 1.3 }}
-              onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-              
-              <div className="pointer-events-auto">
-                {/* ATX Tower Case */}
-                <motion.div className="relative w-[240px] sm:w-[280px] rounded-2xl overflow-hidden transform-gpu"
-                  whileHover={!isPoweredOn ? { y: -4, scale: 1.03 } : {}}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  style={{
-                    background: "linear-gradient(180deg, #1a1a24 0%, #14141c 100%)",
-                    boxShadow: isPoweredOn ? "0 12px 36px rgba(0,0,0,0.4),0 0 0 1px rgba(6,182,212,0.1)" : isHovered ? "0 20px 48px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.08),0 0 30px rgba(6,182,212,0.1)" : "0 16px 40px rgba(0,0,0,0.45),0 0 0 1px rgba(255,255,255,0.04)",
-                    minHeight: 300,
-                  }}>
-                  {/* Top I/O */}
-                  <div className="h-3 bg-[#0d0d14] border-b border-white/[0.03] flex items-center justify-end gap-1 px-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#1a1a28]" /><div className="w-1.5 h-1.5 rounded-full bg-[#1a1a28]" />
+              transition={{ type: "spring", stiffness: 38, damping: 19, mass: 1.1 }}>
+              <motion.div className="relative w-full rounded-2xl overflow-hidden transform-gpu"
+                whileHover={!isPoweredOn ? { y: -3, scale: 1.03 } : {}}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                style={{
+                  background: "linear-gradient(180deg, #1a1a24 0%, #14141c 100%)",
+                  boxShadow: isHovered && !isPoweredOn ? "0 16px 40px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.08),0 0 25px rgba(6,182,212,0.1)" : "0 10px 28px rgba(0,0,0,0.4),0 0 0 1px rgba(255,255,255,0.04)",
+                  minHeight: 250,
+                }}>
+                <div className="h-2.5 bg-[#0d0d14] border-b border-white/[0.03] flex items-center justify-end gap-1 px-2">
+                  <div className="w-1 h-1 rounded-full bg-[#1a1a28]" /><div className="w-1 h-1 rounded-full bg-[#1a1a28]" />
+                </div>
+                <div className="relative mx-1.5 my-1.5 rounded-xl overflow-hidden flex-1"
+                  style={{ background: "rgba(10,10,18,0.9)", border: "1px solid rgba(255,255,255,0.06)", minHeight: 190 }}>
+                  <div className="absolute inset-1.5 rounded-lg" style={{ background: "#0a0a12" }} />
+                  <div className="absolute inset-2 rounded" style={{ background: "#0d1117", border: "1px solid rgba(255,255,255,0.03)" }} />
+                  <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-20 h-20">
+                    <svg className="w-full h-full" viewBox="0 0 112 112">
+                      <defs><radialGradient id="hG"><stop offset="0%" stopColor="#2a2a38" /><stop offset="100%" stopColor="#111" /></radialGradient></defs>
+                      <rect x="2" y="2" width="108" height="108" rx="14" fill="none" stroke="#1a1a28" strokeWidth="3" />
+                      {[[10,10],[102,10],[10,102],[102,102]].map(([cx,cy],i)=><circle key={i} cx={cx} cy={cy} r="4" fill="#0d0d16" stroke="#1a1a28" strokeWidth="1" />)}
+                      <motion.circle cx="56" cy="56" r="38" fill="none" strokeWidth="2" animate={{ opacity:isPoweredOn?1:0, stroke:isPoweredOn?"rgba(6,182,212,0.4)":"transparent" }} transition={{ duration:0.8 }} />
+                      <g style={{ transformOrigin:"56px 56px", animation:isPoweredOn?"fanSpin 0.3s linear infinite":"none" }}>
+                        {Array.from({length:9}).map((_,i)=><g key={i} transform={`rotate(${i*(360/9)} 56 56)`}><path d="M 56,28 C 62,28 70,34 72,50 C 69,52 62,46 56,42 Z" fill="#1e1e2c" stroke="#252534" strokeWidth="0.5" /></g>)}
+                      </g>
+                      <circle cx="56" cy="56" r="10" fill="url(#hG)" stroke="#1a1a28" strokeWidth="1.5" />
+                      <motion.circle cx="56" cy="56" r="3" animate={{ fill:isPoweredOn?"#22d3ee":"#333" }} transition={{ duration:0.6 }} />
+                    </svg>
                   </div>
-
-                  {/* Glass side panel */}
-                  <div className="relative mx-2 my-2 rounded-xl overflow-hidden flex-1"
-                    style={{ background: "rgba(10,10,18,0.9)", border: "1px solid rgba(255,255,255,0.06)", minHeight: 230 }}>
-                    <div className="absolute inset-2 rounded-lg" style={{ background: "#0a0a12" }} />
-                    <div className="absolute inset-3 rounded" style={{ background: "#0d1117", border: "1px solid rgba(255,255,255,0.03)" }}>
-                      <div className="absolute top-3 left-3 right-3 h-[2px] bg-[#1a1a28]" />
-                    </div>
-
-                    {/* SVG Fan */}
-                    <div className="absolute top-[22%] left-1/2 -translate-x-1/2 w-24 h-24">
-                      <svg className="w-full h-full" viewBox="0 0 112 112">
-                        <defs>
-                          <radialGradient id="hubGrad2"><stop offset="0%" stopColor="#2a2a38" /><stop offset="100%" stopColor="#111" /></radialGradient>
-                        </defs>
-                        <rect x="2" y="2" width="108" height="108" rx="14" fill="none" stroke="#1a1a28" strokeWidth="3" />
-                        {[[10,10],[102,10],[10,102],[102,102]].map(([cx,cy],i) => <circle key={i} cx={cx} cy={cy} r="4" fill="#0d0d16" stroke="#1a1a28" strokeWidth="1" />)}
-                        <motion.circle cx="56" cy="56" r="38" fill="none" strokeWidth="2"
-                          animate={{ opacity: isPoweredOn ? 1 : 0, stroke: isPoweredOn ? "rgba(6,182,212,0.4)" : "transparent" }}
-                          transition={{ duration: 0.8 }} />
-                        <g style={{ transformOrigin: "56px 56px", animation: isPoweredOn ? "fanSpin 0.3s linear infinite" : "none" }}>
-                          {Array.from({ length: 9 }).map((_, i) => (
-                            <g key={i} transform={`rotate(${i*(360/9)} 56 56)`}>
-                              <path d="M 56,28 C 62,28 70,34 72,50 C 69,52 62,46 56,42 Z" fill="#1e1e2c" stroke="#252534" strokeWidth="0.5" />
-                            </g>
-                          ))}
-                        </g>
-                        <circle cx="56" cy="56" r="10" fill="url(#hubGrad2)" stroke="#1a1a28" strokeWidth="1.5" />
-                        <motion.circle cx="56" cy="56" r="3" animate={{ fill: isPoweredOn ? "#22d3ee" : "#333" }} transition={{ duration: 0.6 }} />
-                      </svg>
-                    </div>
-
-                    {/* RAM */}
-                    {[0,1].map(i => <div key={i} className="absolute w-1.5 h-10 rounded-sm" style={{ right: `${16+i*9}%`, top: "24%", background: "linear-gradient(180deg, #222, #111)", border: "1px solid #1a1a28" }}>
-                      <motion.div className="absolute top-0 left-0 right-0 h-[3px] rounded-sm" animate={{ background: isPoweredOn?"#22d3ee":"#1a1a28", boxShadow: isPoweredOn?"0 0 6px rgba(34,211,238,0.5)":"none" }} transition={{ duration: 0.7 }} />
-                    </div>)}
-                    {/* GPU */}
-                    <div className="absolute bottom-4 left-3 right-3 h-7 rounded" style={{ background: "linear-gradient(180deg, #1a1a28, #111118)", border: "1px solid #1a1a28" }}>
-                      <div className="absolute top-2 left-3 right-3 flex gap-1">{Array.from({length:4}).map((_,i)=><div key={i} className="flex-1 h-[2px] rounded-full bg-[#222230]" />)}</div>
-                    </div>
+                  {[0,1].map(i=><div key={i} className="absolute w-1 h-7 rounded-sm" style={{ right:`${16+i*8}%`,top:"22%",background:"linear-gradient(180deg,#222,#111)",border:"1px solid #1a1a28" }}>
+                    <motion.div className="absolute top-0 left-0 right-0 h-[2px] rounded-sm" animate={{ background:isPoweredOn?"#22d3ee":"#1a1a28",boxShadow:isPoweredOn?"0 0 5px rgba(34,211,238,0.5)":"none" }} transition={{ duration:0.7 }} />
+                  </div>)}
+                  <div className="absolute bottom-3 left-2 right-2 h-5 rounded" style={{ background:"linear-gradient(180deg,#1a1a28,#111118)",border:"1px solid #1a1a28" }}>
+                    <div className="absolute top-1.5 left-2 right-2 flex gap-0.5">{Array.from({length:3}).map((_,i)=><div key={i} className="flex-1 h-[1.5px] rounded-full bg-[#222230]" />)}</div>
                   </div>
-
-                  {/* Bottom panel + Power Button */}
-                  <div className="h-10 bg-[#0d0d14] border-t border-white/[0.03] flex items-center justify-center gap-3">
-                    <button onClick={triggerBoot} disabled={isPoweredOn} className="relative group" aria-label="Power on">
-                      <motion.div className="w-8 h-8 rounded-full flex items-center justify-center"
-                        animate={{ borderColor: isPoweredOn?"rgba(6,182,212,0.5)":"rgba(255,255,255,0.12)", background: isPoweredOn?"rgba(6,182,212,0.1)":"rgba(255,255,255,0.02)" }}
-                        style={{ border: "1.5px solid rgba(255,255,255,0.1)" }}>
-                        <motion.div className="w-2 h-2 rounded-full" animate={{ background: isPoweredOn?"#22d3ee":"rgba(255,255,255,0.25)", boxShadow: isPoweredOn?"0 0 10px rgba(34,211,238,0.8)":"none" }} />
-                      </motion.div>
-                      {!isPoweredOn && <div className="absolute inset-0 rounded-full pointer-events-none" style={{ animation: "pulseRing 2.5s ease-in-out infinite", boxShadow: "0 0 0 0 rgba(6,182,212,0.25)" }} />}
-                    </button>
-                    <div className="w-6 h-2 rounded-sm bg-[#1a1a28] border border-[#222]" />
-                    <div className="w-6 h-2 rounded-sm bg-[#1a1a28] border border-[#222]" />
-                  </div>
-                </motion.div>
-                <p className="text-center text-[9px] tracking-[0.15em] uppercase text-text-muted/30 mt-2">
-                  {isPoweredOn ? "hl-atx online" : isHovered ? "click to boot" : "atx tower"}
-                </p>
-              </div>
+                </div>
+                <div className="h-8 bg-[#0d0d14] border-t border-white/[0.03] flex items-center justify-center">
+                  <button onClick={triggerBoot} disabled={isPoweredOn} className="relative group" aria-label="Power on">
+                    <motion.div className="w-6 h-6 rounded-full flex items-center justify-center"
+                      animate={{ borderColor:isPoweredOn?"rgba(6,182,212,0.5)":"rgba(255,255,255,0.12)", background:isPoweredOn?"rgba(6,182,212,0.1)":"rgba(255,255,255,0.02)" }}
+                      style={{ border:"1.5px solid rgba(255,255,255,0.1)" }}>
+                      <motion.div className="w-1.5 h-1.5 rounded-full" animate={{ background:isPoweredOn?"#22d3ee":"rgba(255,255,255,0.2)", boxShadow:isPoweredOn?"0 0 8px rgba(34,211,238,0.8)":"none" }} />
+                    </motion.div>
+                    {!isPoweredOn && <div className="absolute inset-0 rounded-full pointer-events-none" style={{ animation:"pulseRing 2.5s ease-in-out infinite",boxShadow:"0 0 0 0 rgba(6,182,212,0.25)" }} />}
+                  </button>
+                </div>
+              </motion.div>
+              <p className="text-center text-[8px] tracking-[0.12em] uppercase text-text-muted/25 mt-1.5">
+                {isPoweredOn ? "online" : isHovered ? "boot" : "atx"}
+              </p>
             </motion.div>
           </div>
 
-          {/* ── Grand Surprise Badge ── */}
+          {/* Grand Surprise */}
           <AnimatePresence>
             {surpriseActive && (
-              <motion.div className="mt-4 flex justify-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6 }}>
-                <motion.div className="px-5 py-2.5 rounded-2xl"
-                  initial={{ y: 30, opacity: 0, scale: 0.8 }} animate={{ y: 0, opacity: 1, scale: 1 }}
-                  transition={{ type: "spring", stiffness: 120, damping: 14, delay: 0.15 }}
-                  style={{ background: "rgba(10,10,20,0.7)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)", boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(139,92,246,0.1)" }}>
-                  <span className="text-[16px] font-bold tracking-wider" style={{ fontFamily: "var(--font-mono), monospace", background: "linear-gradient(135deg, #22d3ee, #8b5cf6, #10b981)", backgroundClip: "text", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>&lt;HL /&gt;</span>
+              <motion.div className="mt-4 flex justify-center" initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}>
+                <motion.div className="px-5 py-2.5 rounded-2xl" initial={{ y:30,opacity:0,scale:0.8 }} animate={{ y:0,opacity:1,scale:1 }} transition={{ type:"spring",stiffness:120,damping:14,delay:0.15 }}
+                  style={{ background:"rgba(10,10,20,0.7)",border:"1px solid rgba(255,255,255,0.08)",backdropFilter:"blur(12px)",boxShadow:"0 8px 32px rgba(0,0,0,0.4),0 0 0 1px rgba(139,92,246,0.1)" }}>
+                  <span className="text-[16px] font-bold tracking-wider" style={{ fontFamily:"var(--font-mono), monospace",background:"linear-gradient(135deg,#22d3ee,#8b5cf6,#10b981)",backgroundClip:"text",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent" }}>&lt;HL /&gt;</span>
                   <span className="block text-[9px] tracking-[0.2em] uppercase text-text-muted/50 mt-1">SYSTEM READY</span>
                 </motion.div>
               </motion.div>
