@@ -99,18 +99,33 @@ export default function Playground() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] pointer-events-none"
         style={{ background: "radial-gradient(ellipse at 40% 60%, rgba(139,92,246,0.06) 0%, transparent 55%), radial-gradient(ellipse at 60% 40%, rgba(16,185,129,0.05) 0%, transparent 55%)" }} />
 
-      <div ref={containerRef} className="mx-auto max-w-[960px]">
+      <div ref={containerRef} className="mx-auto max-w-[840px]">
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.5 }} transition={{ duration: 0.5 }} className="mb-14 text-center">
           <span className="inline-block text-[10px] font-semibold tracking-[0.2em] uppercase text-accent-violet-light mb-3">Interactive</span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-text-primary">Terminal <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-violet-light to-accent-emerald-light">Playground</span></h2>
         </motion.div>
 
         <motion.div initial={reduce ? false : { opacity: 0, y: 30 }} whileInView={reduce ? {} : { opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: 0.15 }}>
-          <div className="flex flex-col lg:flex-row items-end gap-6 lg:gap-10 relative">
-
-            {/* ===================================== MONITOR ===================================== */}
-            <div className="flex-1 flex flex-col items-center w-full">
-              <div className="w-full max-w-[640px] rounded-xl overflow-hidden"
+          
+          {/* ============================================
+              3D PERSPECTIVE STAGE — Case + Monitor stacked
+              ============================================ */}
+          <div className="relative" style={{ perspective: 1200, minHeight: 520 }}>
+            
+            {/* ── BACKGROUND LAYER: Monitor (comes forward when on) ── */}
+            <motion.div className="w-full"
+              animate={{
+                translateZ: isPoweredOn ? 0 : -180,
+                scale: isPoweredOn ? 1 : 0.88,
+                opacity: isPoweredOn ? 1 : 0.55,
+                filter: isPoweredOn ? "blur(0px)" : "blur(1px)",
+                rotateX: isPoweredOn ? 0 : 4,
+              }}
+              transition={{ type: "spring", stiffness: 45, damping: 22, mass: 1.2 }}
+              style={{ transformStyle: "preserve-3d", transformOrigin: "center center" }}>
+              
+              {/* Monitor */}
+              <div className="w-full max-w-[640px] mx-auto rounded-xl overflow-hidden"
                 style={{ background: "#16161e", boxShadow: "0 0 0 1px rgba(255,255,255,0.06), 0 24px 64px rgba(0,0,0,0.6), 0 0 80px rgba(139,92,246,0.04)" }}>
                 <div className="h-[6px] bg-[#1a1a24]" />
                 <div className="relative cursor-text overflow-hidden" style={{ background: isPoweredOn ? "#0a0a10" : "#06060c", height: 420 }} onClick={handleScreenClick}>
@@ -132,13 +147,12 @@ export default function Playground() {
                     <AnimatePresence mode="wait">
                       {!isPoweredOn && !isBooting && (
                         <motion.div key="off" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center h-full">
-                          <div className="relative mb-8" style={{ animation: "pulseModern 3s ease-in-out infinite" }}>
-                            <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ border: "2px solid rgba(139,92,246,0.25)", boxShadow: "0 0 40px rgba(139,92,246,0.08)" }}>
-                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(139,92,246,0.45)" strokeWidth="2" strokeLinecap="round"><path d="M12 2v10" /><path d="M18.4 6.6a9 9 0 1 1-12.8 0" /></svg>
+                          <div className="relative mb-6" style={{ animation: "pulseModern 3s ease-in-out infinite" }}>
+                            <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ border: "2px solid rgba(139,92,246,0.2)", boxShadow: "0 0 30px rgba(139,92,246,0.06)" }}>
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(139,92,246,0.35)" strokeWidth="2" strokeLinecap="round"><path d="M12 2v10" /><path d="M18.4 6.6a9 9 0 1 1-12.8 0" /></svg>
                             </div>
                           </div>
-                          <p className="text-[12px] tracking-[0.25em] uppercase text-text-muted/40">System Offline</p>
-                          <p className="text-[10px] tracking-widest text-text-muted/20 mt-10">Press the power button on the tower</p>
+                          <p className="text-[11px] tracking-[0.25em] uppercase text-text-muted/30">Display Offline</p>
                         </motion.div>
                       )}
                       {isBooting && !isPoweredOn && (
@@ -179,194 +193,107 @@ export default function Playground() {
                   <span className="w-[4px] h-[4px] rounded-full transition-all duration-700" style={{ backgroundColor: isPoweredOn?"#10b981":"#334155", boxShadow: isPoweredOn?"0 0 6px rgba(16,185,129,0.6)":"none" }} />
                 </div>
               </div>
-              <div className="flex flex-col items-center -mt-[1px]">
-                <div className="w-10 h-8 rounded-b-sm" style={{ background:"linear-gradient(180deg,#1a1a24,#222230)",borderLeft:"1px solid rgba(255,255,255,0.04)",borderRight:"1px solid rgba(255,255,255,0.04)",borderBottom:"1px solid rgba(255,255,255,0.04)" }} />
-                <div className="w-40 h-2.5 rounded-b-lg" style={{ background:"#1a1a24",boxShadow:"0 8px 24px rgba(0,0,0,0.5)",border:"1px solid rgba(255,255,255,0.04)" }} />
-              </div>
-            </div>
+            </motion.div>
 
-            {/* ===================================== PREMIUM ATX TOWER ===================================== */}
-            <div className="w-full lg:w-[260px] flex-shrink-0 flex lg:flex-col items-center gap-4 relative"
+            {/* ── FOREGROUND LAYER: PC Case (retreats when on) ── */}
+            <motion.div
+              className="absolute inset-x-0 flex justify-center pointer-events-none"
+              style={{ top: isPoweredOn ? "auto" : "40%", bottom: isPoweredOn ? "10px" : "auto", zIndex: isPoweredOn ? 5 : 20 }}
+              animate={{
+                translateZ: isPoweredOn ? -120 : 40,
+                scale: isPoweredOn ? 0.65 : 1.05,
+                opacity: isPoweredOn ? 0.35 : 1,
+                y: isPoweredOn ? 30 : 0,
+              }}
+              transition={{ type: "spring", stiffness: 40, damping: 20, mass: 1.3 }}
               onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-
-              {/* Curved Power Cable SVG — bezier path with surge animation */}
-              <svg className="hidden lg:block absolute -left-14 top-[8%] w-16 h-32 pointer-events-none z-10" style={{ overflow:"visible" }}>
-                <defs>
-                  <filter id="glowCable">
-                    <feGaussianBlur stdDeviation="2" result="blur" />
-                    <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-                  </filter>
-                </defs>
-                {/* Curved cable path */}
-                <path d="M 0,4 C 20,4 30,20 50,28" fill="none"
-                  stroke={isPoweredOn?"#22d3ee":"#334155"} strokeWidth="2.5" strokeLinecap="round"
-                  style={{ transition:"stroke 0.7s", filter: isPoweredOn?"url(#glowCable)":"none" }} />
-                {/* Surge path */}
-                <path d="M 0,4 C 20,4 30,20 50,28" fill="none"
-                  stroke="#22d3ee" strokeWidth="2.5" strokeLinecap="round"
-                  strokeDasharray="60" strokeDashoffset="60" opacity="0"
-                  style={{ filter: "drop-shadow(0 0 8px rgba(34,211,238,0.9))", animation: isBooting?"cableSurge 1.5s ease-in-out forwards":"none" }} />
-                {/* Traveling dots on the curve */}
-                {isBooting && Array.from({ length: 3 }).map((_, i) => (
-                  <motion.circle key={i} r="3" fill="#22d3ee"
-                    style={{ filter: "drop-shadow(0 0 6px rgba(34,211,238,0.9))" }}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: [0,1,0] }}
-                    transition={{ duration: 1.2, delay: 0.2+i*0.35, ease:"easeInOut", repeat: 1 }}>
-                    <animateMotion dur="1.2s" repeatCount="1" begin={`${0.2+i*0.35}s`}
-                      path="M 0,4 C 20,4 30,20 50,28" />
-                  </motion.circle>
-                ))}
-                {/* Connector plugs */}
-                <circle cx="0" cy="4" r="4.5" fill={isPoweredOn?"#22d3ee":"#64748b"} style={{ transition:"fill 0.7s" }} />
-                <circle cx="50" cy="28" r="4.5" fill={isPoweredOn?"#22d3ee":"#64748b"} style={{ transition:"fill 0.7s" }} />
-                {/* Plug metal tips */}
-                <rect x="-1" y="-2" width="2" height="4" rx="1" fill="#8899aa" style={{ transition:"fill 0.7s", fill: isPoweredOn?"#67e8f9":"#8899aa" }} />
-                <rect x="49" y="26" width="2" height="4" rx="1" fill="#8899aa" style={{ transition:"fill 0.7s", fill: isPoweredOn?"#67e8f9":"#8899aa" }} />
-              </svg>
-
-              {/* Tower Case */}
-              <motion.div className="relative w-full rounded-2xl overflow-hidden transform-gpu"
-                whileHover={{ y: -3 }} transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                style={{
-                  background: "linear-gradient(180deg, #1a1a24 0%, #14141c 100%)",
-                  boxShadow: isPoweredOn ? "0 16px 48px rgba(0,0,0,0.5),0 0 0 1px rgba(6,182,212,0.15),0 0 40px rgba(6,182,212,0.08)" : isHovered ? "0 16px 40px rgba(0,0,0,0.45),0 0 0 1px rgba(255,255,255,0.08)" : "0 12px 32px rgba(0,0,0,0.4),0 0 0 1px rgba(255,255,255,0.04)",
-                  minHeight: 340,
-                }}>
-                {/* Top I/O */}
-                <div className="h-3 bg-[#0d0d14] border-b border-white/[0.03] flex items-center justify-end gap-1 px-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#1a1a28]" /><div className="w-1.5 h-1.5 rounded-full bg-[#1a1a28]" />
-                </div>
-
-                {/* Glass side panel */}
-                <div className="relative mx-2 my-2 rounded-xl overflow-hidden flex-1"
-                  style={{ background: "rgba(10,10,18,0.9)", border: "1px solid rgba(255,255,255,0.06)", minHeight: 260 }}>
-
-                  {/* Internal chamber background */}
-                  <div className="absolute inset-2 rounded-lg" style={{ background: "#0a0a12" }} />
-
-                  {/* Motherboard tray */}
-                  <div className="absolute inset-3 rounded" style={{ background: "#0d1117", border: "1px solid rgba(255,255,255,0.03)" }}>
-                    <div className="absolute top-3 left-3 right-3 h-[2px] bg-[#1a1a28]" />
-                    <div className="absolute top-6 left-3 w-16 h-1 bg-[#1a1a28] rounded-full" />
-                    <div className="absolute top-6 right-6 w-8 h-1 bg-[#1a1a28] rounded-full" />
+              
+              <div className="pointer-events-auto">
+                {/* ATX Tower Case */}
+                <motion.div className="relative w-[240px] sm:w-[280px] rounded-2xl overflow-hidden transform-gpu"
+                  whileHover={!isPoweredOn ? { y: -4, scale: 1.03 } : {}}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  style={{
+                    background: "linear-gradient(180deg, #1a1a24 0%, #14141c 100%)",
+                    boxShadow: isPoweredOn ? "0 12px 36px rgba(0,0,0,0.4),0 0 0 1px rgba(6,182,212,0.1)" : isHovered ? "0 20px 48px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.08),0 0 30px rgba(6,182,212,0.1)" : "0 16px 40px rgba(0,0,0,0.45),0 0 0 1px rgba(255,255,255,0.04)",
+                    minHeight: 300,
+                  }}>
+                  {/* Top I/O */}
+                  <div className="h-3 bg-[#0d0d14] border-b border-white/[0.03] flex items-center justify-end gap-1 px-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#1a1a28]" /><div className="w-1.5 h-1.5 rounded-full bg-[#1a1a28]" />
                   </div>
 
-                  {/* ── REALISTIC CPU FAN (SVG curved blades + frame) ── */}
-                  <div className="absolute top-[24%] left-1/2 -translate-x-1/2 w-28 h-28 flex items-center justify-center">
-                    {/* Fan frame — square with rounded corners */}
-                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 112 112">
-                      <defs>
-                        <radialGradient id="hubGrad"><stop offset="0%" stopColor="#2a2a38" /><stop offset="100%" stopColor="#111" /></radialGradient>
-                        <filter id="bladeBlur"><feGaussianBlur stdDeviation={isPoweredOn?"1.2":"0"} /></filter>
-                      </defs>
-                      {/* Outer frame */}
-                      <rect x="2" y="2" width="108" height="108" rx="14" fill="none" stroke="#1a1a28" strokeWidth="3" />
-                      {/* Corner screw holes */}
-                      {[[10,10],[102,10],[10,102],[102,102]].map(([cx,cy],i) => (
-                        <circle key={i} cx={cx} cy={cy} r="4" fill="#0d0d16" stroke="#1a1a28" strokeWidth="1" />
-                      ))}
-                      {/* Cross braces */}
-                      <line x1="56" y1="18" x2="56" y2="30" stroke="#1a1a28" strokeWidth="2" />
-                      <line x1="56" y1="82" x2="56" y2="94" stroke="#1a1a28" strokeWidth="2" />
-                      <line x1="18" y1="56" x2="30" y2="56" stroke="#1a1a28" strokeWidth="2" />
-                      <line x1="82" y1="56" x2="94" y2="56" stroke="#1a1a28" strokeWidth="2" />
-                      {/* RGB ring glow */}
-                      <motion.circle cx="56" cy="56" r="38" fill="none" strokeWidth="2"
-                        animate={{ opacity: isPoweredOn?1:0, stroke: isPoweredOn?"rgba(6,182,212,0.4)":"transparent" }}
-                        transition={{ duration: 0.8 }}
-                        style={{ filter: isPoweredOn?"drop-shadow(0 0 8px rgba(6,182,212,0.5))":"none" }} />
-                      {/* Spinning blades group */}
-                      <g filter="url(#bladeBlur)" style={{ transformOrigin:"56px 56px", animation: isPoweredOn?"fanSpin 0.3s linear infinite":"none" }}>
-                        {/* 9 Curved fan blades */}
-                        {Array.from({ length: 9 }).map((_, i) => (
-                          <g key={i} transform={`rotate(${i*(360/9)} 56 56)`}>
-                            <path d="M 56,28 C 62,28 70,34 72,50 C 69,52 62,46 56,42 Z"
-                              fill="#1e1e2c" stroke="#252534" strokeWidth="0.5" />
-                          </g>
-                        ))}
-                      </g>
-                      {/* Center hub */}
-                      <circle cx="56" cy="56" r="10" fill="url(#hubGrad)" stroke="#1a1a28" strokeWidth="1.5" />
-                      <motion.circle cx="56" cy="56" r="3"
-                        animate={{ fill: isPoweredOn?"#22d3ee":"#333" }}
-                        transition={{ duration: 0.6 }} />
-                    </svg>
-                    {/* Conic RGB overlay on glass */}
-                    <motion.div className="absolute inset-0 rounded-2xl pointer-events-none"
-                      animate={{ opacity: isPoweredOn?1:0 }} transition={{ duration: 0.8 }}
-                      style={{ background: "conic-gradient(from 0deg, transparent, rgba(6,182,212,0.12) 30deg, rgba(6,182,212,0.2) 60deg, rgba(34,211,238,0.12) 120deg, transparent 180deg, rgba(139,92,246,0.08) 250deg, transparent 320deg)" }} />
+                  {/* Glass side panel */}
+                  <div className="relative mx-2 my-2 rounded-xl overflow-hidden flex-1"
+                    style={{ background: "rgba(10,10,18,0.9)", border: "1px solid rgba(255,255,255,0.06)", minHeight: 230 }}>
+                    <div className="absolute inset-2 rounded-lg" style={{ background: "#0a0a12" }} />
+                    <div className="absolute inset-3 rounded" style={{ background: "#0d1117", border: "1px solid rgba(255,255,255,0.03)" }}>
+                      <div className="absolute top-3 left-3 right-3 h-[2px] bg-[#1a1a28]" />
+                    </div>
+
+                    {/* SVG Fan */}
+                    <div className="absolute top-[22%] left-1/2 -translate-x-1/2 w-24 h-24">
+                      <svg className="w-full h-full" viewBox="0 0 112 112">
+                        <defs>
+                          <radialGradient id="hubGrad2"><stop offset="0%" stopColor="#2a2a38" /><stop offset="100%" stopColor="#111" /></radialGradient>
+                        </defs>
+                        <rect x="2" y="2" width="108" height="108" rx="14" fill="none" stroke="#1a1a28" strokeWidth="3" />
+                        {[[10,10],[102,10],[10,102],[102,102]].map(([cx,cy],i) => <circle key={i} cx={cx} cy={cy} r="4" fill="#0d0d16" stroke="#1a1a28" strokeWidth="1" />)}
+                        <motion.circle cx="56" cy="56" r="38" fill="none" strokeWidth="2"
+                          animate={{ opacity: isPoweredOn ? 1 : 0, stroke: isPoweredOn ? "rgba(6,182,212,0.4)" : "transparent" }}
+                          transition={{ duration: 0.8 }} />
+                        <g style={{ transformOrigin: "56px 56px", animation: isPoweredOn ? "fanSpin 0.3s linear infinite" : "none" }}>
+                          {Array.from({ length: 9 }).map((_, i) => (
+                            <g key={i} transform={`rotate(${i*(360/9)} 56 56)`}>
+                              <path d="M 56,28 C 62,28 70,34 72,50 C 69,52 62,46 56,42 Z" fill="#1e1e2c" stroke="#252534" strokeWidth="0.5" />
+                            </g>
+                          ))}
+                        </g>
+                        <circle cx="56" cy="56" r="10" fill="url(#hubGrad2)" stroke="#1a1a28" strokeWidth="1.5" />
+                        <motion.circle cx="56" cy="56" r="3" animate={{ fill: isPoweredOn ? "#22d3ee" : "#333" }} transition={{ duration: 0.6 }} />
+                      </svg>
+                    </div>
+
+                    {/* RAM */}
+                    {[0,1].map(i => <div key={i} className="absolute w-1.5 h-10 rounded-sm" style={{ right: `${16+i*9}%`, top: "24%", background: "linear-gradient(180deg, #222, #111)", border: "1px solid #1a1a28" }}>
+                      <motion.div className="absolute top-0 left-0 right-0 h-[3px] rounded-sm" animate={{ background: isPoweredOn?"#22d3ee":"#1a1a28", boxShadow: isPoweredOn?"0 0 6px rgba(34,211,238,0.5)":"none" }} transition={{ duration: 0.7 }} />
+                    </div>)}
+                    {/* GPU */}
+                    <div className="absolute bottom-4 left-3 right-3 h-7 rounded" style={{ background: "linear-gradient(180deg, #1a1a28, #111118)", border: "1px solid #1a1a28" }}>
+                      <div className="absolute top-2 left-3 right-3 flex gap-1">{Array.from({length:4}).map((_,i)=><div key={i} className="flex-1 h-[2px] rounded-full bg-[#222230]" />)}</div>
+                    </div>
                   </div>
 
-                  {/* RAM sticks */}
-                  {[0,1].map(i => <div key={i} className="absolute w-1.5 h-10 rounded-sm" style={{ right: `${16+i*9}%`, top: "26%", background: `linear-gradient(180deg, #222, #111)`, border: "1px solid #1a1a28" }}>
-                    <motion.div className="absolute top-0 left-0 right-0 h-[3px] rounded-sm"
-                      animate={{ background: isPoweredOn ? "#22d3ee" : "#1a1a28", boxShadow: isPoweredOn ? "0 0 6px rgba(34,211,238,0.5)" : "none" }} transition={{ duration: 0.7 }} />
-                  </div>)}
-
-                  {/* GPU */}
-                  <div className="absolute bottom-4 left-3 right-3 h-7 rounded" style={{ background: "linear-gradient(180deg, #1a1a28, #111118)", border: "1px solid #1a1a28" }}>
-                    <div className="absolute top-2 left-3 right-3 flex gap-1">{Array.from({length:4}).map((_,i)=><div key={i} className="flex-1 h-[2px] rounded-full bg-[#222230]" />)}</div>
+                  {/* Bottom panel + Power Button */}
+                  <div className="h-10 bg-[#0d0d14] border-t border-white/[0.03] flex items-center justify-center gap-3">
+                    <button onClick={triggerBoot} disabled={isPoweredOn} className="relative group" aria-label="Power on">
+                      <motion.div className="w-8 h-8 rounded-full flex items-center justify-center"
+                        animate={{ borderColor: isPoweredOn?"rgba(6,182,212,0.5)":"rgba(255,255,255,0.12)", background: isPoweredOn?"rgba(6,182,212,0.1)":"rgba(255,255,255,0.02)" }}
+                        style={{ border: "1.5px solid rgba(255,255,255,0.1)" }}>
+                        <motion.div className="w-2 h-2 rounded-full" animate={{ background: isPoweredOn?"#22d3ee":"rgba(255,255,255,0.25)", boxShadow: isPoweredOn?"0 0 10px rgba(34,211,238,0.8)":"none" }} />
+                      </motion.div>
+                      {!isPoweredOn && <div className="absolute inset-0 rounded-full pointer-events-none" style={{ animation: "pulseRing 2.5s ease-in-out infinite", boxShadow: "0 0 0 0 rgba(6,182,212,0.25)" }} />}
+                    </button>
+                    <div className="w-6 h-2 rounded-sm bg-[#1a1a28] border border-[#222]" />
+                    <div className="w-6 h-2 rounded-sm bg-[#1a1a28] border border-[#222]" />
                   </div>
-                </div>
-
-                {/* Bottom panel with Power Button */}
-                <div className="h-10 bg-[#0d0d14] border-t border-white/[0.03] flex items-center justify-center gap-3">
-                  <button onClick={triggerBoot} disabled={isPoweredOn} className="relative group" aria-label="Power on">
-                    <motion.div className="w-8 h-8 rounded-full flex items-center justify-center"
-                      animate={{ borderColor: isPoweredOn ? "rgba(6,182,212,0.5)" : "rgba(255,255,255,0.12)", background: isPoweredOn ? "rgba(6,182,212,0.1)" : "rgba(255,255,255,0.02)" }}
-                      style={{ border: "1.5px solid rgba(255,255,255,0.1)" }}>
-                      <motion.div className="w-2 h-2 rounded-full"
-                        animate={{ background: isPoweredOn ? "#22d3ee" : "rgba(255,255,255,0.25)", boxShadow: isPoweredOn ? "0 0 10px rgba(34,211,238,0.8)" : "none" }} />
-                    </motion.div>
-                    {!isPoweredOn && <div className="absolute inset-0 rounded-full pointer-events-none" style={{ animation: "pulseRing 2.5s ease-in-out infinite", boxShadow: "0 0 0 0 rgba(6,182,212,0.25)" }} />}
-                  </button>
-                  {/* Front USB ports */}
-                  <div className="w-6 h-2 rounded-sm bg-[#1a1a28] border border-[#222]" />
-                  <div className="w-6 h-2 rounded-sm bg-[#1a1a28] border border-[#222]" />
-                </div>
-              </motion.div>
-
-              <span className="text-[9px] tracking-[0.15em] uppercase text-text-muted/30 text-center">
-                {isPoweredOn ? "HL-ATX online" : isHovered ? "click to boot" : "atx tower"}
-              </span>
-            </div>
+                </motion.div>
+                <p className="text-center text-[9px] tracking-[0.15em] uppercase text-text-muted/30 mt-2">
+                  {isPoweredOn ? "hl-atx online" : isHovered ? "click to boot" : "atx tower"}
+                </p>
+              </div>
+            </motion.div>
           </div>
 
-          {/* ── Grand Surprise: Holographic Grid + Glassmorphism Badge ── */}
+          {/* ── Grand Surprise Badge ── */}
           <AnimatePresence>
             {surpriseActive && (
-              <motion.div className="relative mt-6 flex justify-center"
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6 }}>
-                {/* Holographic grid splash */}
-                <motion.div className="absolute inset-x-0 -top-4 h-20 pointer-events-none overflow-hidden"
-                  initial={{ opacity: 0, scaleY: 0 }} animate={{ opacity: [0, 1, 0.6, 0], scaleY: [0, 1, 1, 0] }}
-                  transition={{ duration: 2.5, ease: "easeOut" }}>
-                  <div className="w-full h-full"
-                    style={{
-                      backgroundImage: "repeating-linear-gradient(0deg, rgba(6,182,212,0.08) 0px, rgba(6,182,212,0.08) 1px, transparent 1px, transparent 8px), repeating-linear-gradient(90deg, rgba(139,92,246,0.06) 0px, rgba(139,92,246,0.06) 1px, transparent 1px, transparent 8px)",
-                      maskImage: "radial-gradient(ellipse at 50% 50%, black 20%, transparent 70%)",
-                    }} />
-                </motion.div>
-                {/* Glassmorphism badge */}
-                <motion.div className="relative px-6 py-3 rounded-2xl"
-                  initial={{ y: 40, opacity: 0, scale: 0.8 }}
-                  animate={{ y: 0, opacity: 1, scale: 1 }}
+              <motion.div className="mt-4 flex justify-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6 }}>
+                <motion.div className="px-5 py-2.5 rounded-2xl"
+                  initial={{ y: 30, opacity: 0, scale: 0.8 }} animate={{ y: 0, opacity: 1, scale: 1 }}
                   transition={{ type: "spring", stiffness: 120, damping: 14, delay: 0.15 }}
-                  style={{
-                    background: "rgba(10,10,20,0.7)",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    backdropFilter: "blur(12px)",
-                    boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(139,92,246,0.1)",
-                  }}>
-                  <span className="text-[16px] font-bold tracking-wider"
-                    style={{
-                      fontFamily: "var(--font-mono), monospace",
-                      background: "linear-gradient(135deg, #22d3ee, #8b5cf6, #10b981)",
-                      backgroundClip: "text",
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
-                    }}>&lt;HL /&gt;</span>
+                  style={{ background: "rgba(10,10,20,0.7)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)", boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(139,92,246,0.1)" }}>
+                  <span className="text-[16px] font-bold tracking-wider" style={{ fontFamily: "var(--font-mono), monospace", background: "linear-gradient(135deg, #22d3ee, #8b5cf6, #10b981)", backgroundClip: "text", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>&lt;HL /&gt;</span>
                   <span className="block text-[9px] tracking-[0.2em] uppercase text-text-muted/50 mt-1">SYSTEM READY</span>
                 </motion.div>
               </motion.div>
@@ -382,9 +309,8 @@ export default function Playground() {
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
         @keyframes rippleOut { 0%{transform:translate(-50%,-50%) scale(1);opacity:0.9} 100%{transform:translate(-50%,-50%) scale(30);opacity:0} }
         @keyframes pulseRing { 0%{box-shadow:0 0 0 0 rgba(6,182,212,0.25)} 70%{box-shadow:0 0 0 10px rgba(6,182,212,0)} 100%{box-shadow:0 0 0 0 rgba(6,182,212,0)} }
-        @keyframes cableSurge { 0%{stroke-dashoffset:60;opacity:0} 15%{opacity:1} 100%{stroke-dashoffset:0;opacity:0} }
         @keyframes fanSpin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
-    `}</style>
+      `}</style>
     </section>
   );
 }
