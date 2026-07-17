@@ -3,78 +3,14 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, useReducedMotion, AnimatePresence } from "framer-motion";
 
-/* ============================================
-   Commands
-   ============================================ */
-interface CmdEntry {
-  type: "input" | "output";
-  lines: string[];
-}
+interface CmdEntry { type: "input" | "output"; lines: string[]; }
 
 const COMMANDS: Record<string, string[]> = {
-  help: [
-    "AVAILABLE COMMANDS",
-    "",
-    "  help       Show this message",
-    "  about      About me",
-    "  skills     My tech stack",
-    "  projects   Featured projects",
-    "  contact    How to reach me",
-    "  clear      Clear the terminal",
-  ],
-  about: [
-    "ABOUT",
-    "",
-    "  Vo Hoang Lam",
-    "  AI Software Engineer  |  Dong Nai, Vietnam",
-    "",
-    "  Building AI-powered enterprise apps,",
-    "  modernizing manufacturing systems,",
-    "  and shipping full-stack solutions.",
-    "",
-    "  Specialized in RAG pipelines, LLM integration,",
-    "  and real-time industrial systems.",
-  ],
-  skills: [
-    "TECH STACK",
-    "",
-    "  FRONTEND    React, Next.js, Angular, TypeScript",
-    "  BACKEND     Django, Python, .NET, PostgreSQL",
-    "  MOBILE      Flutter, Android, RFID integration",
-    "  AI/ML       LangChain, RAG, GPT, Pinecone",
-    "  TOOLS       Git, Docker, Nix, CI/CD pipelines",
-    "",
-    "  Currently exploring: Rust, WebAssembly, Edge AI",
-  ],
-  projects: [
-    "FEATURED PROJECTS",
-    "",
-    "  UEL GenAI Retrieval System",
-    "    RAG pipeline with LangChain + GPT + Pinecone",
-    "    Semantic search across 50K+ academic documents",
-    "",
-    "  WMS Modernization",
-    "    React + Flutter frontend with RFID scanning",
-    "    Real-time inventory tracking for manufacturing",
-    "",
-    "  TPM Management System",
-    "    React + Flutter + Python + Django backend",
-    "    Predictive maintenance scheduling engine",
-    "",
-    "  VNC Helper",
-    "    .NET desktop tool integrating TightVNC",
-    "    Remote machine management for factory floor",
-  ],
-  contact: [
-    "CONTACT",
-    "",
-    "  Email      liamvo0605.work@gmail.com",
-    "  GitHub     github.com/mataza060503",
-    "  LinkedIn   linkedin.com/in/lam-vo",
-    "  Location   Dong Nai, Vietnam",
-    "",
-    "  Open to freelance and full-time opportunities.",
-  ],
+  help: ["AVAILABLE COMMANDS","","  help       Show this message","  about      About me","  skills     My tech stack","  projects   Featured projects","  contact    How to reach me","  clear      Clear the terminal"],
+  about: ["ABOUT","","  Vo Hoang Lam","  AI Software Engineer  |  Dong Nai, Vietnam","","  Building AI-powered enterprise apps,","  modernizing manufacturing systems,","  and shipping full-stack solutions.","","  Specialized in RAG pipelines, LLM integration,","  and real-time industrial systems."],
+  skills: ["TECH STACK","","  FRONTEND    React, Next.js, Angular, TypeScript","  BACKEND     Django, Python, .NET, PostgreSQL","  MOBILE      Flutter, Android, RFID integration","  AI/ML       LangChain, RAG, GPT, Pinecone","  TOOLS       Git, Docker, Nix, CI/CD pipelines","","  Currently exploring: Rust, WebAssembly, Edge AI"],
+  projects: ["FEATURED PROJECTS","","  UEL GenAI Retrieval System","    RAG pipeline with LangChain + GPT + Pinecone","    Semantic search across 50K+ academic documents","","  WMS Modernization","    React + Flutter frontend with RFID scanning","    Real-time inventory tracking for manufacturing","","  TPM Management System","    React + Flutter + Python + Django backend","    Predictive maintenance scheduling engine","","  VNC Helper","    .NET desktop tool integrating TightVNC","    Remote machine management for factory floor"],
+  contact: ["CONTACT","","  Email      liamvo0605.work@gmail.com","  GitHub     github.com/mataza060503","  LinkedIn   linkedin.com/in/lam-vo","  Location   Dong Nai, Vietnam","","  Open to freelance and full-time opportunities."],
 };
 
 const BOOT_SEQUENCE = [
@@ -117,62 +53,44 @@ export default function Playground() {
     const el = terminalRef.current;
     if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }, []);
-
   useEffect(() => { scrollTerminal(); }, [history, bootLines, scrollTerminal]);
 
-  /* ---- Boot ---- */
   const triggerBoot = useCallback(() => {
     if (isBooting || isPoweredOn) return;
-    setIsBooting(true);
-    setBootFlash(true);
+    setIsBooting(true); setBootFlash(true);
     setTimeout(() => setBootFlash(false), 300);
-    let cd = 0;
-    const ts: ReturnType<typeof setTimeout>[] = [];
-    BOOT_SEQUENCE.forEach(({ text, delay }) => {
-      cd += delay;
-      ts.push(setTimeout(() => setBootLines((p) => [...p, text]), cd));
-    });
+    let cd = 0; const ts: ReturnType<typeof setTimeout>[] = [];
+    BOOT_SEQUENCE.forEach(({ text, delay }) => { cd += delay; ts.push(setTimeout(() => setBootLines((p) => [...p, text]), cd)); });
     ts.push(setTimeout(() => {
       setBootDone(true); setIsBooting(false);
       setTimeout(() => {
-        setIsPoweredOn(true);
-        setSurpriseActive(true);
-        setTimeout(() => setSurpriseActive(false), 2500);
+        setIsPoweredOn(true); setSurpriseActive(true);
+        setTimeout(() => setSurpriseActive(false), 3000);
         setHistory([{ type: "output", lines: ['Type "help" to get started.'] }]);
         requestAnimationFrame(() => inputRef.current?.focus({ preventScroll: true }));
       }, 350);
     }, cd + 400));
     bootTimerRef.current = ts;
   }, [isBooting, isPoweredOn]);
-
   useEffect(() => { return () => bootTimerRef.current.forEach(clearTimeout); }, []);
 
   const processCommand = useCallback((cmd: string) => {
-    const t = cmd.trim().toLowerCase();
-    if (!t) return;
+    const t = cmd.trim().toLowerCase(); if (!t) return;
     setHistory((p) => [...p, { type: "input", lines: [cmd] }]);
     if (t === "clear") { setHistory([]); return; }
-    const o = COMMANDS[t];
-    setHistory((p) => [...p, { type: "output", lines: o ?? [`Unknown: "${t}". Type "help".`] }]);
+    const o = COMMANDS[t]; setHistory((p) => [...p, { type: "output", lines: o ?? [`Unknown: "${t}". Type "help".`] }]);
   }, []);
-
   const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); if (!input.trim()) return; processCommand(input.trim()); setCommandHistory((p) => [input.trim(), ...p]); setInput(""); setHistoryIndex(-1); };
-
   const emitRipple = useCallback(() => {
-    if (reduce) return;
-    const id = rippleIdRef.current++;
-    const cs = ["#8b5cf6","#10b981","#a78bfa","#34d399"];
+    if (reduce) return; const id = rippleIdRef.current++; const cs = ["#8b5cf6","#10b981","#a78bfa","#34d399"];
     setRipples((p) => [...p.slice(-6), { id, x: 20+Math.random()*60, y: 30+Math.random()*40, color: cs[Math.floor(Math.random()*4)] }]);
     setTimeout(() => setRipples((p) => p.filter(r => r.id !== id)), 800);
   }, [reduce]);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    emitRipple();
+  const handleKeyDown = (e: React.KeyboardEvent) => { emitRipple();
     if (e.key === "ArrowUp") { e.preventDefault(); if (commandHistory.length > 0) { const ni = Math.min(historyIndex+1, commandHistory.length-1); setHistoryIndex(ni); setInput(commandHistory[ni]); } }
     else if (e.key === "ArrowDown") { e.preventDefault(); if (historyIndex > 0) { setHistoryIndex(historyIndex-1); setInput(commandHistory[historyIndex-1]); } else { setHistoryIndex(-1); setInput(""); } }
     else if (e.key === "Escape") inputRef.current?.blur();
   };
-
   const handleScreenClick = () => { if (isPoweredOn) inputRef.current?.focus({ preventScroll: true }); };
 
   return (
@@ -188,7 +106,7 @@ export default function Playground() {
         </motion.div>
 
         <motion.div initial={reduce ? false : { opacity: 0, y: 30 }} whileInView={reduce ? {} : { opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: 0.15 }}>
-          <div className="flex flex-col lg:flex-row items-end gap-6 lg:gap-10">
+          <div className="flex flex-col lg:flex-row items-end gap-6 lg:gap-10 relative">
 
             {/* ===================================== MONITOR ===================================== */}
             <div className="flex-1 flex flex-col items-center w-full">
@@ -198,26 +116,17 @@ export default function Playground() {
                 <div className="relative cursor-text overflow-hidden" style={{ background: isPoweredOn ? "#0a0a10" : "#06060c", height: 420 }} onClick={handleScreenClick}>
                   <AnimatePresence>{bootFlash && <motion.div className="absolute inset-0 z-30 pointer-events-none" initial={{ opacity: 1, background: "#ffffff" }} animate={{ opacity: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }} />}</AnimatePresence>
                   <div className="absolute inset-0 pointer-events-none z-10" style={{ background: "radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0,0,0,0.4) 100%)" }} />
-
-                  {/* Surprise particle burst */}
                   <AnimatePresence>
                     {surpriseActive && (
                       <div className="absolute inset-0 z-25 pointer-events-none">
-                        {Array.from({ length: 20 }).map((_, i) => (
+                        {Array.from({ length: 24 }).map((_, i) => (
                           <motion.div key={i} className="absolute w-[3px] h-[3px] rounded-full"
-                            style={{
-                              left: "50%", top: "50%",
-                              background: ["#22d3ee","#8b5cf6","#10b981","#f59e0b","#ec4899"][i%5],
-                              boxShadow: `0 0 6px ${["#22d3ee","#8b5cf6","#10b981","#f59e0b","#ec4899"][i%5]}`,
-                            }}
-                            initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
-                            animate={{ x: (Math.random()-0.5)*300, y: (Math.random()-0.5)*200, opacity: 0, scale: 0 }}
-                            transition={{ duration: 1+Math.random()*1.5, ease: "easeOut" }} />
+                            style={{ left: "50%", top: "50%", background: ["#22d3ee","#8b5cf6","#10b981","#f59e0b","#ec4899","#a78bfa"][i%6], boxShadow: `0 0 6px ${["#22d3ee","#8b5cf6","#10b981","#f59e0b","#ec4899","#a78bfa"][i%6]}` }}
+                            initial={{ x: 0, y: 0, opacity: 1, scale: 1 }} animate={{ x: (Math.random()-0.5)*350, y: (Math.random()-0.5)*220, opacity: 0, scale: 0 }} transition={{ duration: 1+Math.random()*1.5, ease: "easeOut" }} />
                         ))}
                       </div>
                     )}
                   </AnimatePresence>
-
                   <div ref={terminalRef} className="relative z-10 h-full overflow-y-auto p-5 sm:p-6 font-mono text-[12px] sm:text-[13px] leading-relaxed"
                     style={{ fontFamily: "var(--font-mono), 'Courier New', monospace", scrollbarWidth: "thin", scrollbarColor: "rgba(139,92,246,0.2) transparent" }}>
                     <AnimatePresence mode="wait">
@@ -229,7 +138,7 @@ export default function Playground() {
                             </div>
                           </div>
                           <p className="text-[12px] tracking-[0.25em] uppercase text-text-muted/40">System Offline</p>
-                          <p className="text-[10px] tracking-widest text-text-muted/20 mt-10">Click the mini PC to power on</p>
+                          <p className="text-[10px] tracking-widest text-text-muted/20 mt-10">Press the power button on the tower</p>
                         </motion.div>
                       )}
                       {isBooting && !isPoweredOn && (
@@ -276,79 +185,159 @@ export default function Playground() {
               </div>
             </div>
 
-            {/* ===================================== MAC MINI-STYLE COMPACT PC ===================================== */}
-            <div className="w-full lg:w-[280px] flex-shrink-0 flex lg:flex-col items-center gap-4 relative"
+            {/* ===================================== PREMIUM ATX TOWER ===================================== */}
+            <div className="w-full lg:w-[260px] flex-shrink-0 flex lg:flex-col items-center gap-4 relative"
               onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
 
-              {/* Power Cable SVG (desktop: horizontal from case to monitor) */}
-              <svg className="hidden lg:block absolute -left-10 top-[18%] w-12 h-[3px] pointer-events-none z-10" style={{ overflow:"visible" }}>
-                <defs>
-                  <linearGradient id="cGrad" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor={isPoweredOn?"#22d3ee":"#334155"} />
-                    <stop offset="100%" stopColor={isPoweredOn?"#06b6d4":"#1e293b"} />
-                  </linearGradient>
-                </defs>
-                <line x1="0" y1="0" x2="44" y2="0" stroke="url(#cGrad)" strokeWidth="3" strokeLinecap="round"
-                  style={{ filter: isPoweredOn?"drop-shadow(0 0 8px rgba(34,211,238,0.7))":"none", transition:"all 0.7s" }} />
-                <circle cx="0" cy="0" r="4" fill="#64748b" style={{ transition:"all 0.7s", fill: isPoweredOn?"#22d3ee":"#64748b" }} />
-                <circle cx="44" cy="0" r="4" fill="#64748b" style={{ transition:"all 0.7s", fill: isPoweredOn?"#22d3ee":"#64748b" }} />
-                {/* Energy pulses traveling along cable on boot */}
-                {isBooting && Array.from({ length: 4 }).map((_, i) => (
-                  <motion.circle key={i} r="3" fill="#22d3ee"
-                    style={{ filter: "drop-shadow(0 0 6px rgba(34,211,238,0.8))" }}
-                    initial={{ cx: 0, opacity: 0 }} animate={{ cx: 44, opacity: [0,1,0] }}
-                    transition={{ duration: 0.7, delay: 0.2+i*0.18, ease:"easeInOut" }} />
-                ))}
+              {/* Power Cable SVG with stroke-dashoffset surge animation */}
+              <svg className="hidden lg:block absolute -left-10 top-[20%] w-12 h-[3px] pointer-events-none z-10" style={{ overflow:"visible" }}>
+                <line x1="0" y1="0" x2="44" y2="0" stroke={isPoweredOn?"#22d3ee":"#334155"} strokeWidth="3" strokeLinecap="round"
+                  style={{ filter: isPoweredOn?"drop-shadow(0 0 8px rgba(34,211,238,0.7))":"none", transition:"stroke 0.7s" }} />
+                {/* Surge line */}
+                <line x1="0" y1="0" x2="44" y2="0" stroke="#22d3ee" strokeWidth="3" strokeLinecap="round" opacity="0"
+                  strokeDasharray="44" strokeDashoffset="44"
+                  style={{ filter: "drop-shadow(0 0 12px rgba(34,211,238,0.9))", animation: isBooting?"cableSurge 1.5s ease-in-out forwards":"none" }} />
+                <circle cx="0" cy="0" r="4" fill={isPoweredOn?"#22d3ee":"#64748b"} style={{ transition:"fill 0.7s" }} />
+                <circle cx="44" cy="0" r="4" fill={isPoweredOn?"#22d3ee":"#64748b"} style={{ transition:"fill 0.7s" }} />
               </svg>
 
-              {/* Mobile vertical cable */}
-              <svg className="lg:hidden absolute -top-5 left-1/2 -translate-x-1/2 w-[3px] h-7 pointer-events-none z-10" style={{ overflow:"visible" }}>
-                <line x1="0" y1="0" x2="0" y2="24" stroke={isPoweredOn?"#22d3ee":"#334155"} strokeWidth="3" strokeLinecap="round"
-                  style={{ filter: isPoweredOn?"drop-shadow(0 0 6px rgba(34,211,238,0.6))":"none", transition:"all 0.7s" }} />
-                <circle cx="0" cy="0" r="4" fill="#64748b" style={{ transition:"all 0.7s", fill: isPoweredOn?"#22d3ee":"#64748b" }} />
-              </svg>
-
-              {/* Mini PC Case */}
-              <motion.div className="relative w-full rounded-2xl cursor-pointer overflow-hidden"
-                onClick={() => { if (!isPoweredOn) triggerBoot(); }}
-                whileHover={{ y: -3, scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              {/* Tower Case */}
+              <motion.div className="relative w-full rounded-2xl overflow-hidden transform-gpu"
+                whileHover={{ y: -3 }} transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 style={{
-                  background: "linear-gradient(135deg, #e8eaed 0%, #d4d6da 40%, #c8cacf 100%)",
-                  boxShadow: isPoweredOn ? "0 12px 40px rgba(0,0,0,0.4),0 0 0 1px rgba(0,0,0,0.08),0 0 30px rgba(6,182,212,0.15)" : isHovered ? "0 12px 36px rgba(0,0,0,0.35),0 0 0 1px rgba(0,0,0,0.08),0 0 20px rgba(6,182,212,0.08)" : "0 8px 28px rgba(0,0,0,0.3),0 0 0 1px rgba(0,0,0,0.06)",
-                  paddingBottom: "55%",
+                  background: "linear-gradient(180deg, #1a1a24 0%, #14141c 100%)",
+                  boxShadow: isPoweredOn ? "0 16px 48px rgba(0,0,0,0.5),0 0 0 1px rgba(6,182,212,0.15),0 0 40px rgba(6,182,212,0.08)" : isHovered ? "0 16px 40px rgba(0,0,0,0.45),0 0 0 1px rgba(255,255,255,0.08)" : "0 12px 32px rgba(0,0,0,0.4),0 0 0 1px rgba(255,255,255,0.04)",
+                  minHeight: 340,
                 }}>
-                <div className="absolute inset-0 rounded-2xl pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.3) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.05) 100%)" }} />
-                {/* LED strip */}
-                <div className="absolute bottom-0 left-4 right-4 h-[2px] transition-all duration-700"
-                  style={{ background: isPoweredOn ? "#22d3ee" : "#c0c4c8", boxShadow: isPoweredOn ? "0 0 10px rgba(34,211,238,0.7),0 0 20px rgba(34,211,238,0.3)" : "none" }} />
-                {/* Power indicator */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                  <motion.div className="w-8 h-8 rounded-full flex items-center justify-center"
-                    animate={{ scale: isHovered && !isPoweredOn ? 1.1 : 1, borderColor: isPoweredOn ? "rgba(34,211,238,0.6)" : "rgba(0,0,0,0.15)" }}
-                    transition={{ duration: 0.4 }}
-                    style={{ background: "rgba(0,0,0,0.04)", border: "1.5px solid rgba(0,0,0,0.1)" }}>
-                    <motion.div className="w-2 h-2 rounded-full"
-                      animate={{ background: isPoweredOn ? "#22d3ee" : isHovered ? "rgba(6,182,212,0.5)" : "rgba(0,0,0,0.2)", boxShadow: isPoweredOn ? "0 0 10px rgba(34,211,238,0.8),0 0 20px rgba(34,211,238,0.3)" : "none" }}
-                      transition={{ duration: 0.5 }} />
-                  </motion.div>
+                {/* Top I/O */}
+                <div className="h-3 bg-[#0d0d14] border-b border-white/[0.03] flex items-center justify-end gap-1 px-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#1a1a28]" /><div className="w-1.5 h-1.5 rounded-full bg-[#1a1a28]" />
                 </div>
-                {/* Expanding pulse ring on boot */}
-                <AnimatePresence>
-                  {isBooting && (
-                    <motion.div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full pointer-events-none"
-                      initial={{ scale: 1, opacity: 1, borderColor: "rgba(34,211,238,0.6)" }}
-                      animate={{ scale: 8, opacity: 0, borderColor: "rgba(34,211,238,0)" }}
-                      exit={{ opacity: 0 }} transition={{ duration: 1, ease: "easeOut" }}
-                      style={{ border: "2px solid rgba(34,211,238,0.4)" }} />
-                  )}
-                </AnimatePresence>
+
+                {/* Glass side panel */}
+                <div className="relative mx-2 my-2 rounded-xl overflow-hidden flex-1"
+                  style={{ background: "rgba(10,10,18,0.9)", border: "1px solid rgba(255,255,255,0.06)", minHeight: 260 }}>
+
+                  {/* Internal chamber background */}
+                  <div className="absolute inset-2 rounded-lg" style={{ background: "#0a0a12" }} />
+
+                  {/* Motherboard tray */}
+                  <div className="absolute inset-3 rounded" style={{ background: "#0d1117", border: "1px solid rgba(255,255,255,0.03)" }}>
+                    <div className="absolute top-3 left-3 right-3 h-[2px] bg-[#1a1a28]" />
+                    <div className="absolute top-6 left-3 w-16 h-1 bg-[#1a1a28] rounded-full" />
+                    <div className="absolute top-6 right-6 w-8 h-1 bg-[#1a1a28] rounded-full" />
+                  </div>
+
+                  {/* ── CPU COOLING FAN (programmatic blades) ── */}
+                  <div className="absolute top-[28%] left-1/2 -translate-x-1/2 w-24 h-24 flex items-center justify-center">
+                    {/* Fan frame */}
+                    <div className="absolute inset-0 rounded-full" style={{ border: "2px solid #1a1a28", background: "#0d0d16" }} />
+                    {/* RGB ring */}
+                    <motion.div className="absolute inset-0 rounded-full pointer-events-none"
+                      animate={{ opacity: isPoweredOn ? 1 : 0 }} transition={{ duration: 0.8 }}
+                      style={{ background: "conic-gradient(from 0deg, transparent, rgba(6,182,212,0.15) 40deg, rgba(6,182,212,0.3) 80deg, rgba(34,211,238,0.15) 160deg, transparent 200deg, rgba(139,92,246,0.1) 280deg, transparent 320deg)", boxShadow: isPoweredOn ? "0 0 20px rgba(6,182,212,0.3), 0 0 40px rgba(6,182,212,0.1)" : "none" }} />
+                    {/* Fan hub */}
+                    <motion.div className="absolute w-6 h-6 rounded-full z-10 flex items-center justify-center"
+                      style={{ background: "radial-gradient(circle, #1a1a28, #0d0d18)", border: "1px solid #222" }}
+                      animate={{ boxShadow: isPoweredOn ? "0 0 12px rgba(6,182,212,0.5)" : "none" }} transition={{ duration: 0.6 }}>
+                      <div className="w-1.5 h-1.5 rounded-full" style={{ background: isPoweredOn ? "#22d3ee" : "#333", transition: "background 0.6s" }} />
+                    </motion.div>
+                    {/* 7 Fan Blades */}
+                    <motion.div className="absolute inset-0"
+                      animate={{ rotate: isPoweredOn ? 360 : 0 }}
+                      transition={isPoweredOn ? { rotate: { duration: 0.3, repeat: Infinity, ease: "linear" } } : { duration: 0 }}>
+                      {Array.from({ length: 7 }).map((_, i) => (
+                        <div key={i} className="absolute top-0 left-1/2 -translate-x-1/2 w-[8px] origin-bottom"
+                          style={{
+                            height: "55%",
+                            transform: `rotate(${i * (360/7)}deg)`,
+                            transformOrigin: "50% 100%",
+                          }}>
+                          <motion.div className="absolute bottom-0 left-0 right-0 rounded-full"
+                            style={{ top: "-40%", background: "linear-gradient(180deg, #2a2a38, #1a1a28)" }}
+                            animate={{ filter: isPoweredOn ? "blur(1.5px)" : "blur(0px)" }} transition={{ duration: 0.8 }} />
+                        </div>
+                      ))}
+                    </motion.div>
+                    {/* Glass reflection */}
+                    <div className="absolute inset-0 rounded-full pointer-events-none"
+                      style={{ background: "radial-gradient(ellipse at 30% 30%, rgba(255,255,255,0.03) 0%, transparent 60%)" }} />
+                  </div>
+
+                  {/* RAM sticks */}
+                  {[0,1].map(i => <div key={i} className="absolute w-1.5 h-10 rounded-sm" style={{ right: `${16+i*9}%`, top: "26%", background: `linear-gradient(180deg, #222, #111)`, border: "1px solid #1a1a28" }}>
+                    <motion.div className="absolute top-0 left-0 right-0 h-[3px] rounded-sm"
+                      animate={{ background: isPoweredOn ? "#22d3ee" : "#1a1a28", boxShadow: isPoweredOn ? "0 0 6px rgba(34,211,238,0.5)" : "none" }} transition={{ duration: 0.7 }} />
+                  </div>)}
+
+                  {/* GPU */}
+                  <div className="absolute bottom-4 left-3 right-3 h-7 rounded" style={{ background: "linear-gradient(180deg, #1a1a28, #111118)", border: "1px solid #1a1a28" }}>
+                    <div className="absolute top-2 left-3 right-3 flex gap-1">{Array.from({length:4}).map((_,i)=><div key={i} className="flex-1 h-[2px] rounded-full bg-[#222230]" />)}</div>
+                  </div>
+                </div>
+
+                {/* Bottom panel with Power Button */}
+                <div className="h-10 bg-[#0d0d14] border-t border-white/[0.03] flex items-center justify-center gap-3">
+                  <button onClick={triggerBoot} disabled={isPoweredOn} className="relative group" aria-label="Power on">
+                    <motion.div className="w-8 h-8 rounded-full flex items-center justify-center"
+                      animate={{ borderColor: isPoweredOn ? "rgba(6,182,212,0.5)" : "rgba(255,255,255,0.12)", background: isPoweredOn ? "rgba(6,182,212,0.1)" : "rgba(255,255,255,0.02)" }}
+                      style={{ border: "1.5px solid rgba(255,255,255,0.1)" }}>
+                      <motion.div className="w-2 h-2 rounded-full"
+                        animate={{ background: isPoweredOn ? "#22d3ee" : "rgba(255,255,255,0.25)", boxShadow: isPoweredOn ? "0 0 10px rgba(34,211,238,0.8)" : "none" }} />
+                    </motion.div>
+                    {!isPoweredOn && <div className="absolute inset-0 rounded-full pointer-events-none" style={{ animation: "pulseRing 2.5s ease-in-out infinite", boxShadow: "0 0 0 0 rgba(6,182,212,0.25)" }} />}
+                  </button>
+                  {/* Front USB ports */}
+                  <div className="w-6 h-2 rounded-sm bg-[#1a1a28] border border-[#222]" />
+                  <div className="w-6 h-2 rounded-sm bg-[#1a1a28] border border-[#222]" />
+                </div>
               </motion.div>
+
               <span className="text-[9px] tracking-[0.15em] uppercase text-text-muted/30 text-center">
-                {isPoweredOn ? "hl-node online" : isHovered ? "click to boot" : "compact compute"}
+                {isPoweredOn ? "HL-ATX online" : isHovered ? "click to boot" : "atx tower"}
               </span>
             </div>
           </div>
+
+          {/* ── Grand Surprise: Holographic Grid + Glassmorphism Badge ── */}
+          <AnimatePresence>
+            {surpriseActive && (
+              <motion.div className="relative mt-6 flex justify-center"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6 }}>
+                {/* Holographic grid splash */}
+                <motion.div className="absolute inset-x-0 -top-4 h-20 pointer-events-none overflow-hidden"
+                  initial={{ opacity: 0, scaleY: 0 }} animate={{ opacity: [0, 1, 0.6, 0], scaleY: [0, 1, 1, 0] }}
+                  transition={{ duration: 2.5, ease: "easeOut" }}>
+                  <div className="w-full h-full"
+                    style={{
+                      backgroundImage: "repeating-linear-gradient(0deg, rgba(6,182,212,0.08) 0px, rgba(6,182,212,0.08) 1px, transparent 1px, transparent 8px), repeating-linear-gradient(90deg, rgba(139,92,246,0.06) 0px, rgba(139,92,246,0.06) 1px, transparent 1px, transparent 8px)",
+                      maskImage: "radial-gradient(ellipse at 50% 50%, black 20%, transparent 70%)",
+                    }} />
+                </motion.div>
+                {/* Glassmorphism badge */}
+                <motion.div className="relative px-6 py-3 rounded-2xl"
+                  initial={{ y: 40, opacity: 0, scale: 0.8 }}
+                  animate={{ y: 0, opacity: 1, scale: 1 }}
+                  transition={{ type: "spring", stiffness: 120, damping: 14, delay: 0.15 }}
+                  style={{
+                    background: "rgba(10,10,20,0.7)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    backdropFilter: "blur(12px)",
+                    boxShadow: "0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(139,92,246,0.1)",
+                  }}>
+                  <span className="text-[16px] font-bold tracking-wider"
+                    style={{
+                      fontFamily: "var(--font-mono), monospace",
+                      background: "linear-gradient(135deg, #22d3ee, #8b5cf6, #10b981)",
+                      backgroundClip: "text",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                    }}>&lt;HL /&gt;</span>
+                  <span className="block text-[9px] tracking-[0.2em] uppercase text-text-muted/50 mt-1">SYSTEM READY</span>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <p className="mt-8 text-center text-xs text-text-muted" style={{ fontFamily:"var(--font-mono), monospace" }}>Try: help · about · skills · projects · contact · clear</p>
         </motion.div>
@@ -358,7 +347,9 @@ export default function Playground() {
         @keyframes pulseModern { 0%,100%{opacity:0.35} 50%{opacity:0.85} }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
         @keyframes rippleOut { 0%{transform:translate(-50%,-50%) scale(1);opacity:0.9} 100%{transform:translate(-50%,-50%) scale(30);opacity:0} }
-      `}</style>
+        @keyframes pulseRing { 0%{box-shadow:0 0 0 0 rgba(6,182,212,0.25)} 70%{box-shadow:0 0 0 10px rgba(6,182,212,0)} 100%{box-shadow:0 0 0 0 rgba(6,182,212,0)} }
+        @keyframes cableSurge { 0%{stroke-dashoffset:44;opacity:0} 20%{opacity:1} 100%{stroke-dashoffset:0;opacity:0} }
+    `}</style>
     </section>
   );
 }
