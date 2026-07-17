@@ -1,7 +1,16 @@
 @import "tailwindcss";
 
 /* ============================================
-   Portfolio Theme — Dark Slate + Neon Accents
+   Tailwind v4 — Class-based Dark Mode
+   Works with next-themes (attribute="class")
+   .dark class is present → dark mode (default)
+   .dark class absent → light mode
+   ============================================ */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ============================================
+   Portfolio Theme — Dark Slate + Neon Accents (DEFAULT)
    ============================================ */
 
 @theme inline {
@@ -32,9 +41,10 @@
 
 /* ============================================
    Light Theme Overrides
+   (applied when .dark class is absent)
    ============================================ */
 
-[data-theme="light"] {
+html:not(.dark) {
   /* Background Palette — Cool Gray / White */
   --color-bg-primary: #f8fafc;
   --color-bg-secondary: #f1f5f9;
@@ -82,10 +92,10 @@ body {
 }
 
 /* Subtle theme-aware grid pattern */
-[data-theme="light"] .dot-grid {
+html:not(.dark) .dot-grid {
   opacity: 0.06;
 }
-[data-theme="dark"] .dot-grid {
+.dark .dot-grid {
   opacity: 0.03;
 }
 

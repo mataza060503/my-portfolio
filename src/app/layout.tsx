@@ -33,7 +33,12 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full bg-bg-primary text-text-primary transition-colors duration-300">
-        <ThemeProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange={false}
+        >
           <Header />
           {children}
           <Footer />

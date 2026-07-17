@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Sun, Moon } from "lucide-react";
-import { useTheme } from "@/components/ThemeProvider";
+import { Menu, X } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 /* Inline brand SVGs (lucide doesn't ship GitHub / LinkedIn) */
 function GithubIcon({ size = 18 }: { size?: number }) {
@@ -47,7 +47,6 @@ const NAV_LINKS = [
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { theme, toggle: toggleTheme } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -121,13 +120,7 @@ export default function Header() {
 
         {/* Theme toggle + mobile hamburger */}
         <div className="flex items-center gap-1">
-          <button
-            onClick={toggleTheme}
-            className="rounded-lg p-2 text-text-secondary hover:text-accent-violet-light hover:bg-bg-tertiary/40 transition-colors"
-            aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-          >
-            {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
-          </button>
+          <ThemeToggle />
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="md:hidden text-text-primary p-1 -mr-1"

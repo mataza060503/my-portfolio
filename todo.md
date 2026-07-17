@@ -31,3 +31,22 @@
 - [x] **Task 7: Complete Responsiveness & Layout Testing**
   - Rigorously check and adjust Tailwind spacing and containers for large screens (1440x1093) to avoid clipping.
   - Finalize mobile view drawer navigation and vertical fallback layout for mobile devices.
+
+- [x] **Task 8: Dark/Light Mode — Custom Implementation (REPLACED)**
+  - ~~Custom ThemeProvider with context + localStorage + system preference detection.~~
+  - ~~Light theme CSS variable overrides via `[data-theme="light"]`.~~
+  - ~~Sun/moon toggle button in the header.~~
+  - **Replaced by Task 10 (next-themes migration).**
+
+- [x] **Task 9: Social Links, README & Git Push**
+  - Verified GitHub and LinkedIn links across all components.
+  - Wrote a professional README.md with badges, features, projects, and setup guide.
+  - Configured git remote, committed, and pushed to `main` on GitHub.
+
+- [x] **Task 10: next-themes Migration & Theme Toggle**
+  - Installed `next-themes` for robust system-preference detection and localStorage persistence.
+  - Added `@custom-variant dark (&:where(.dark, .dark *));` for Tailwind v4 class-based dark mode.
+  - Flipped CSS variable strategy: dark values on `:root` (default), light overrides via `html:not(.dark)`.
+  - Replaced custom `ThemeProvider` with `next-themes` `ThemeProvider` (attribute="class", defaultTheme="dark").
+  - Created `ThemeToggle.tsx` with Framer Motion animated Sun/Moon icon swap (rotate + scale spring).
+  - Updated `Header.tsx` to use the new `ThemeToggle` component.
