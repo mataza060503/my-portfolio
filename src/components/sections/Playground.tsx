@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useRef, useCallback, useState, useEffect } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import dynamic from "next/dynamic";
+import { useTerminal } from "@/hooks/useTerminal";
 
 /* ============================================
-   Dynamic import — Three.js runs client-only
+   Dynamic import — R3F runs client-only
    ============================================ */
-const RetroComputer3D = dynamic(
-  () => import("@/components/RetroComputer3D"),
+const RetroComputerR3F = dynamic(
+  () => import("@/components/RetroComputerR3F"),
   {
     ssr: false,
     loading: () => (
@@ -28,158 +29,130 @@ const RetroComputer3D = dynamic(
 );
 
 /* ============================================
-   Terminal commands
+   Flat terminal fallback (no WebGL)
    ============================================ */
+function FlatTerminal({
+  history,
+  input,
+  focused,
+  setInput,
+  submit,
+  handleKeyDown,
+  focus,
+  blur,
+  bottomRef,
+}: ReturnType<typeof useTerminal>) {
+  return (
+    <div
+      className="w-full rounded-2xl overflow-hidden border border-bg-surface/30"
+      style={{
+        aspectRatio: "1 / 0.8",
+        maxHeight: 600,
+        background:
+          "radial-gradient(ellipse at 55% 40%, #0d220d, #020a02 80%)",
+      }}
+    >
+      <div className="h-full w-full font-mono text-[10px] sm:text-[11px] leading-relaxed p-4 flex flex-col relative">
+        {/* Scanlines */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-[0.05]"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.3) 2px, rgba(0,0,0,0.3) 3px)",
+          }}
+        />
+        {/* Vignette */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.5) 95%)",
+          }}
+        />
 
-interface CommandEntry {
-  type: "input" | "output";
-  text: string;
+        <div
+          className="flex-1 overflow-y-auto relative z-10"
+          style={{
+            fontFamily: "var(--font-mono), 'Courier New', monospace",
+            color: "#8bff8b",
+            textShadow:
+              "0 0 4px rgba(139,255,139,0.55), 0 0 10px rgba(139,255,139,0.18)",
+          }}
+        >
+          {history.map((entry, i) => (
+            <div key={i} className="mb-0.5">
+              {entry.type === "input" ? (
+                <div className="flex gap-1">
+                  <span style={{ color: "#c4b5fd" }}>C:\&gt;</span>
+                  <span style={{ color: "#e2e8f0" }}>
+                    {entry.text.replace("C:\\> ", "")}
+                  </span>
+                </div>
+              ) : (
+                <div className="whitespace-pre-wrap" style={{ color: "#8bff8b" }}>
+                  {entry.text}
+                </div>
+              )}
+            </div>
+          ))}
+          {/* Input line */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              submit();
+            }}
+            className="flex gap-1 mt-0.5"
+          >
+            <span style={{ color: "#c4b5fd", flexShrink: 0 }}>C:\&gt;</span>
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  (e.target as HTMLInputElement).blur();
+                  return;
+                }
+                handleKeyDown(e);
+              }}
+              onFocus={focus}
+              onBlur={blur}
+              className="flex-1 bg-transparent border-none outline-none font-mono text-[10px] sm:text-[11px] placeholder:text-white/10"
+              style={{
+                color: "#e2e8f0",
+                caretColor: "var(--color-accent-emerald)",
+              }}
+              placeholder="Type a command..."
+              spellCheck={false}
+              autoComplete="off"
+            />
+          </form>
+          <div ref={bottomRef} />
+        </div>
+      </div>
+    </div>
+  );
 }
-
-const COMMANDS: Record<string, string | string[]> = {
-  help: [
-    " Available commands:",
-    "   help       Show this message",
-    "   about      About me",
-    "   skills     My tech stack",
-    "   projects   Featured projects",
-    "   contact    How to reach me",
-    "   clear      Clear the terminal",
-  ],
-  about: [
-    " +------------------------------------------+",
-    " |  Vo Hoang Lam - AI Software Engineer     |",
-    " |  Dong Nai, Vietnam                       |",
-    " |                                          |",
-    " |  1+ Year building AI-powered enterprise  |",
-    " |  apps, modernizing manufacturing, and    |",
-    " |  shipping full-stack solutions.          |",
-    " +------------------------------------------+",
-  ],
-  skills: [
-    " +- Tech Stack ----------------------------+",
-    " | Frontend:  React, Next.js, Angular,      |",
-    " |            TypeScript, Tailwind CSS       |",
-    " | Backend:   Django, Python, .NET, SQL     |",
-    " | Mobile:    Flutter, Android, RFID         |",
-    " | AI:        LangChain, RAG, GPT, Pinecone |",
-    " | Tools:     Git, Nix, TightVNC            |",
-    " +-------------------------------------------+",
-  ],
-  projects: [
-    " +- Featured Projects ---------------------+",
-    " | * UEL GenAI Retrieval System             |",
-    " |   RAG + LangChain + GPT + Pinecone       |",
-    " | * WMS Modernization                      |",
-    " |   React + Flutter + RFID Scanning        |",
-    " | * TPM System                             |",
-    " |   React + Flutter + Python + Django      |",
-    " | * VNC Helper (.NET + TightVNC)           |",
-    " +-------------------------------------------+",
-  ],
-  contact: [
-    " +- Contact -------------------------------+",
-    " | Email:   liamvo0605.work@gmail.com       |",
-    " | GitHub:  github.com/mataza060503         |",
-    " | LinkedIn: linkedin.com/in/lam-vo         |",
-    " | Location: Dong Nai, Vietnam              |",
-    " +-------------------------------------------+",
-  ],
-};
 
 /* ============================================
    Playground — Terminal section with 3D model
    ============================================ */
-
 export default function Playground() {
-  const [history, setHistory] = useState<CommandEntry[]>([
-    { type: "output", text: 'Welcome! Type "help" to get started.' },
-  ]);
-  const [input, setInput] = useState("");
-  const [commandHistory, setCommandHistory] = useState<string[]>([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
-  const [activeKey, setActiveKey] = useState<string | null>(null);
-  const sectionRef = useRef<HTMLElement>(null);
+  const terminal = useTerminal();
   const reduce = useReducedMotion();
+  const sectionRef = useRef<HTMLElement>(null);
+  const [useFlatFallback, setUseFlatFallback] = useState(false);
 
-  /* ---- Keyboard glow on input change ---- */
+  // Check WebGL support
   useEffect(() => {
-    if (!input) return;
-    const lastChar = input[input.length - 1];
-    setActiveKey(lastChar === " " ? "SPACE" : lastChar);
-    const t = setTimeout(() => setActiveKey(null), 200);
-    return () => clearTimeout(t);
-  }, [input]);
-
-  const processCommand = useCallback((cmd: string) => {
-    const trimmed = cmd.trim().toLowerCase();
-    if (!trimmed) return;
-    const entry: CommandEntry = { type: "input", text: `C:\\> ${cmd}` };
-    setHistory((prev) => [...prev, entry]);
-    if (trimmed === "clear") {
-      setHistory([]);
-      return;
-    }
-    const output = COMMANDS[trimmed];
-    if (output) {
-      const lines = Array.isArray(output) ? output : [output];
-      setHistory((prev) => [
-        ...prev,
-        ...lines.map((line) => ({ type: "output" as const, text: line })),
-      ]);
-    } else {
-      setHistory((prev) => [
-        ...prev,
-        { type: "output", text: `Unknown command: "${trimmed}". Type "help".` },
-      ]);
+    try {
+      const c = document.createElement("canvas");
+      const gl = c.getContext("webgl2") || c.getContext("webgl");
+      if (!gl) setUseFlatFallback(true);
+    } catch {
+      setUseFlatFallback(true);
     }
   }, []);
-
-  const handleSubmit = useCallback(() => {
-    if (!input.trim()) return;
-    processCommand(input.trim());
-    setCommandHistory((prev) => [input.trim(), ...prev]);
-    setInput("");
-    setHistoryIndex(-1);
-    setActiveKey("ENTER");
-    setTimeout(() => setActiveKey(null), 350);
-  }, [input, processCommand]);
-
-  const handleInputChange = useCallback((value: string) => {
-    setInput(value);
-  }, []);
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        handleSubmit();
-        return;
-      }
-      if (e.key === "ArrowUp") {
-        e.preventDefault();
-        if (commandHistory.length > 0) {
-          const ni = Math.min(historyIndex + 1, commandHistory.length - 1);
-          setHistoryIndex(ni);
-          setInput(commandHistory[ni]);
-        }
-      } else if (e.key === "ArrowDown") {
-        e.preventDefault();
-        if (historyIndex > 0) {
-          const ni = historyIndex - 1;
-          setHistoryIndex(ni);
-          setInput(commandHistory[ni]);
-        } else {
-          setHistoryIndex(-1);
-          setInput("");
-        }
-      } else if (e.key === "Backspace") {
-        setActiveKey("BKS");
-        setTimeout(() => setActiveKey(null), 180);
-      }
-    },
-    [commandHistory, historyIndex, handleSubmit],
-  );
 
   return (
     <section
@@ -209,47 +182,61 @@ export default function Playground() {
             </span>
           </h2>
           <p className="mt-3 text-sm text-text-muted max-w-md mx-auto">
-            A fully interactive 3D retro computer — drag to rotate, scroll to zoom, click to type commands.
+            Drag to orbit · scroll to zoom · click the screen to type commands.
           </p>
         </motion.div>
 
         {/* ====================================================
-           3D VIEWPORT — cinematic entry animation
+           3D VIEWPORT — cinematic entry
            ==================================================== */}
         <div style={{ perspective: 2000 }} className="transform-gpu">
           <motion.div
             initial={
               reduce
                 ? false
-                : { rotateY: -35, rotateX: 8, y: 100, z: 60, opacity: 0, scale: 0.92 }
+                : {
+                    rotateY: -25,
+                    rotateX: 6,
+                    y: 80,
+                    z: 40,
+                    opacity: 0,
+                    scale: 0.94,
+                  }
             }
             whileInView={
               reduce
                 ? {}
-                : { rotateY: 0, rotateX: 0, y: 0, z: 0, opacity: 1, scale: 1 }
+                : {
+                    rotateY: 0,
+                    rotateX: 0,
+                    y: 0,
+                    z: 0,
+                    opacity: 1,
+                    scale: 1,
+                  }
             }
             viewport={{ once: false, amount: 0.1 }}
-            transition={{ type: "spring", stiffness: 38, damping: 17, mass: 1.4 }}
+            transition={{
+              type: "spring",
+              stiffness: 38,
+              damping: 17,
+              mass: 1.4,
+            }}
             style={{
               transformStyle: "preserve-3d",
               transformOrigin: "center center",
               willChange: "transform, opacity",
             }}
           >
-            {/* ---- 3D Computer Canvas ---- */}
             <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-black/50 ring-1 ring-white/5">
-              <RetroComputer3D
-                history={history}
-                input={input}
-                onInputChange={handleInputChange}
-                onSubmit={handleSubmit}
-                onKeyDown={handleKeyDown}
-                activeKey={activeKey}
-                isInView={true}
-              />
+              {useFlatFallback ? (
+                <FlatTerminal {...terminal} />
+              ) : (
+                <RetroComputerR3F {...terminal} />
+              )}
             </div>
 
-            {/* ---- Hint text ---- */}
+            {/* Hint */}
             <p
               className="mt-6 text-center text-xs text-text-muted"
               style={{ fontFamily: "var(--font-mono), monospace" }}
