@@ -54,7 +54,7 @@ export default function FallingEntities() {
   const reduce = useReducedMotion();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const items = useMemo(() => generateItems(80), []);
+  const items = useMemo(() => generateItems(35), []);
 
   useEffect(() => {
     if (reduce || !containerRef.current) return;

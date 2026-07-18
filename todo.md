@@ -204,6 +204,73 @@
   - **Simplified Playground.tsx**: Removed HTML overlay terminal — all text now renders on the 3D CRT screen texture. "Deal from the deck" scroll entry animation preserved.
   - Build verified: `npm run build` → clean compile, zero TypeScript errors, zero hydration mismatches.
 
+- [x] **Task 21: Lighthouse Performance Optimization (Target 95+)**
+  - **Lazy-loaded Playground**: Wrapped with `next/dynamic(() => import(...), { ssr: true, loading: ... })`. The heaviest component (framer-motion, keyboard, cyberspace, floating terminals) is now code-split and deferred, reducing initial JS bundle.
+  - **Fixed banned `window.addEventListener("scroll")`**: Replaced in Header with `useScroll()` + `useMotionValueEvent(scrollY, "change", ...)`. Zero raw scroll listeners remaining.
+  - **CLS eliminated**: Header now has explicit `h-[65px] flex items-center`. Hero uses `pt-[65px]` matching the exact header height. Changed `min-h-screen` to `min-h-[100dvh]` for iOS Safari address bar stability.
+  - **FallingEntities reduced**: DOM count from 80 to 35 items (less parse/paint cost at initial load).
+  - **Package import optimization**: Added `experimental.optimizePackageImports: ["framer-motion", "lucide-react"]` to next.config.ts - tree-shakes unused Motion exports and icon imports.
+  - **Callback memoization**: Wrapped Header `handleNavClick` and Hero `scrollTo` in `useCallback` to prevent unnecessary re-renders.
+  - **Font loading**: Geist fonts via `next/font/google` self-host with `font-display: swap` built-in - no layout shift from font swap.
+  - Build verified: `npm run build` - clean compile, zero TypeScript errors, zero banned patterns.
+
+- [x] **Task 20.1: Monitor Upscale + Pulse Fix + 60FPS Performance Optimization**
+  - **Monitor upscaled**: Width from `clamp(280px, 65%, 640px)` to `clamp(340px, 78%, 800px)`. 3D container minHeight from 420 to 500. Cyberspace terminal maxWidth from 700 to 740, outer wrapper from max-w-[960px] to 1024px. Aspect-video preserved.
+  - **Case pulse glow fix**: Removed `overflow-hidden` from the case outer wrapper (`rounded-2xl overflow-hidden` -> `rounded-2xl`). The breathing ring now extends freely beyond the case chassis edges, bleeding magenta glow onto surrounding surface.
+  - **GPU acceleration layer**:
+    - Added `will-change: transform, opacity` to: monitor motion.div, case motion.div, FloatingTerminal wrappers, cyberspace terminal core, keyboard mount wrapper, keyboard base container, individual IsoKeycap elements.
+    - Added `will-change: transform` to the spinning fan blade `<g>` element.
+    - `transform-gpu` class applied to: monitor, case, FloatingTerminal containers, cyberspace terminal, keyboard mount, keyboard base.
+    - All animated elements now use only `transform` and `opacity` (no layout-triggering properties).
+  - **Reduced CSS filter cost**: Breathing pulse animation now uses only `boxShadow` + `borderColor` + `transform: scale()` (no `blur()` filters). Floating terminals use lightweight `backdrop-filter: blur(4px)` only. CyberGrid particles use simple `opacity` oscillation instead of filter-based glow.
+  - Build verified: `npm run build` - clean compile, zero TypeScript errors, zero em-dashes.
+
+- [x] **Task 20: Cyberspace Phase-Shift + Aspect Ratio Fix + Isometric Keyboard**
+  - **Critical fixes**:
+    - Monitor screen now enforces `aspect-video` (16:9) class instead of arbitrary height.
+    - Case outer wrapper has `overflow-hidden` restored to prevent internal components from bleeding through `rounded-2xl` corners. Glass panel and interior layers now stay clamped.
+  - **Phase-shift lifecycle** (`isBootPhase` -> `dissolve3D` -> `showVirtualEnvironment`):
+    - *Phase 0 (Dormant)*: Monitor+Case side by side with orbital overlap, power button breathing.
+    - *Phase 1 (Boot)*: Orbital swap animation + boot sequence on monitor screen. After boot, surprise `<HL/>` badge + cyberspace loading bar appear on screen.
+    - *Phase 2 (Dissolve)*: Old 3D scene exits via `AnimatePresence` with blur+scale fade-out (`filter: blur(12px), scale: 0.9, opacity: 0`).
+    - *Phase 3 (Cyberspace)*: Virtual environment fades in with `easeOut` 0.8s transition.
+  - **Cyberspace Environment**:
+    - `CyberGrid` component: perspective grid (48px cells, radial mask), glowing horizon line, 30 floating data particles with cyan/violet/emerald glow and sine-wave oscillation.
+    - `FloatingTerminal` components (4 total): positioned top-left, top-right, bottom-left, bottom-right with continuous drift animation (`x/y` loops at 12-14s). Each shows animated content: SYS.LOG (scrolling logs), IDLE.term (network scan), BUILD.pipe (cargo build), MONITOR.dash (CPU/GPU bars with animated progress).
+    - Main terminal core: obsidian glassmorphic panel (`bg-black/75 backdrop-blur-md`), cyan border glow, inset highlight, traffic-light title bar, connected status dot, monospace terminal with full command processing.
+  - **Isometric Keyboard** (`MechanicalKeyboardIsometric.tsx`, replaces `MechanicalKeyboard3D`):
+    - Keyboard chassis rendered with `transform: rotateX(55deg)` for wedge-profile isometric perspective.
+    - Keycaps fly in from random 3D origins (spring physics, staggered delays across 0.7s) after initial platform spin (2.5 rotations over 1.3s).
+    - Active key depresses `translateZ` -2px, glows purple gradient + cyan/violet `boxShadow`.
+    - Under-glow reflection strip fades in after animation completes.
+  - Deleted old `MechanicalKeyboard3D.tsx`.
+  - Build verified: `npm run build` - clean compile, zero TypeScript errors, zero em-dashes.
+
+- [x] **Task 19.2: Mechanical Keyboard 3D + Layout Restructure**
+  - **Removed background CTA direction text** entirely (the "[ SYSTEM DORMANT ]" / "interact with power core to boot" overlay).
+  - **Activated layout restructure**: Outer viewport now uses conditional flex: `justify-center` before boot, `justify-between` after boot. Monitor + case move to the right side; keyboard occupies the left.
+  - **Case fully hidden on activation**: `CASE_HIDDEN = { x: -20, z: -140, scale: 0.3, opacity: 0 }` pushes case far behind the monitor, completely invisible.
+  - **Monitor to right-center**: `MONITOR_FOREGROUND = { x: 0, z: 30, scale: 0.9 }` with `justify-between` placing it on the right side of the viewport.
+  - **New `MechanicalKeyboard3D` component** (`src/components/sections/MechanicalKeyboard3D.tsx`):
+    - Full QWERTY keyboard layout: 6 rows (function keys, numbers, QWERTY, home, bottom, space) with realistic key widths.
+    - **Entrance animation**: Whole keyboard platform rotates in from below with 2.5 full `rotateX` spins (`-720deg` to `0deg`) over 1.1s with `easeOut`, plus `y: 250 -> 0` spring uplift.
+    - **Keycap fly-in**: After the platform settles (~1.2s delay), individual `Keycap3D` components fly in from random off-screen positions (`±250px x/y`, random `0-360deg` rotation on all 3 axes) with staggered delays (spread across 0.9s), spring physics (`stiffness: 200, damping: 18`).
+    - **3D keycap depth**: Each key uses `transformStyle: preserve-3d` with animated `z` translate (0 ↔ 2px) for press depth, gradient background, and border glow.
+    - **Key reactivity**: `activeKey` state tracked via `handleKeyDown`; matched to physical key `code` via key mapping. Pressed key lights up purple gradient (`#8b5cf6 -> #6d3fd9`) with violet+emerald `boxShadow` glow, depresses 2px, auto-clears after 220ms.
+    - Keyboard glow strip at bottom edge fades in after animation completes.
+  - Removed dead `monitorTarget`/`caseTarget` computed values and `ctaHeartbeat` keyframe.
+  - Active key timer properly cleaned up on unmount.
+  - Build verified: `npm run build` - clean compile, zero TypeScript errors, zero em-dashes.
+
+- [x] **Task 19.1: Orbital Swap Fixes + Mobile Responsive + Breathing Ring + Case 3D Rotation**
+  - **Power button breathing ring fix**: Removed `overflow-hidden` from the case outer wrapper (it was clipping the ring). Moved ring to render cleanly. Increased ring from `inset: -6px` to `inset: -10px` with stronger `boxShadow` glow and `scale` keyframe animation (0.95 → 1.08). Increased bottom panel height from `h-9` to `h-11` and button from `w-7 h-7` to `w-8 h-8` for better visibility.
+  - **Removed "ATX TOWER" label**: Deleted the `<p>` tag below the case that showed dynamic labels ("atx tower" / "power core" / "booting" / "online").
+  - **Case 3D rotation**: Increased `CASE_INITIAL.rotateY` from `-4` to `-16` and `CASE_SPREAD.rotateY` from `-4` to `-16` to give visible 3D perspective depth.
+  - **Background CTA text fix**: Moved from `absolute inset-0` with `translateZ(-200px)` (which pushed it into invisible 3D distance) to `absolute inset-x-0 top-1/2 -translate-y-1/2` (flat 2D behind the scene). Split into two lines: bold `"[ SYSTEM DORMANT ]"` headline + smaller `"interact with power core to boot"` sub-label. Both pulse via `ctaHeartbeat` with staggered delay. Fades out on boot.
+  - **Monitor centering on activation**: Made `marginRight` conditional: `isPoweredOn ? 0 : "clamp(-100px, -12%, -30px)"`. When system boots, the negative overlap margin is removed entirely so the monitor sits at true dead center of the viewport.
+  - **Mobile responsive layout**: Changed preserve-3d container from `flex` to `flex flex-col md:flex-row` with `gap-6 md:gap-0`. On mobile, monitor and case stack vertically. Monitor screen height now uses `clamp(280px, 50vw, 420px)` instead of hardcoded 420px. Monitor width reduced to `clamp(280px, 65%, 640px)`. Case width reduced to `clamp(140px, 24%, 220px)`.
+  - Build verified: `npm run build` - clean compile, zero TypeScript errors, zero em-dashes.
+
 - [x] **Task 19: Fix Keycap Anchoring + Hardware Micro-Details + Retro Peripheral Decorations**
   - **CRITICAL FIX: Keycaps anchored to base plate**:
     - Root cause: keycaps floated at `y=0.63` while base plate top surface was at `y=0.05` — detached by 0.58 units.
