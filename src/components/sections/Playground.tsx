@@ -145,7 +145,25 @@ export default function Playground() {
   const [isCaseHovered, setIsCaseHovered] = useState(false);
   const [caseOnTop, setCaseOnTop] = useState(true);
   const [fansSpinning, setFansSpinning] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" && window.innerWidth < 768);
   const [activeKey, setActiveKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const check = (e: MediaQueryListEvent | MediaQueryList) => setIsMobile(e.matches);
+    check(mq);
+    mq.addEventListener("change", check);
+    return () => mq.removeEventListener("change", check);
+  }, []);
+
+  /* on mobile, skip 3D scene and show terminal immediately */
+  useEffect(() => {
+    if (isMobile && !showCyberspace) {
+      setIsBootPhase(true);
+      setShowCyberspace(true);
+      setHistory([{ type: "output", lines: ['Type "help" to get started.'] }]);
+    }
+  }, [isMobile, showCyberspace]);
   const activeKeyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const inputRef    = useRef<HTMLInputElement>(null);
@@ -244,7 +262,7 @@ export default function Playground() {
           PHASE 0+1: 3D SCENE (monitor + case side by side)
           ============================================================ */}
       <AnimatePresence>
-        {!dissolveScene && (
+        {!dissolveScene && !isMobile && (
           <motion.div key="scene-3d" ref={scope}
             initial={reduce ? false : { opacity: 0, y: 40, rotateY: -8, rotateX: 4 }}
             whileInView={reduce ? {} : { opacity: 1, y: 0, rotateY: 0, rotateX: 0 }}
@@ -337,11 +355,11 @@ export default function Playground() {
       <AnimatePresence>
         {showCyberspace && (
           <motion.div key="cyberspace" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, ease: "easeOut" }}
-            className="relative mx-auto" style={{ minHeight: 600, maxWidth: 1024 }}>
+            className="relative mx-auto px-0 sm:px-4" style={{ minHeight: isMobile ? 440 : 600, maxWidth: isMobile ? "100%" : 1024 }}>
             <CyberGrid />
-            {FLOATING_TERMINALS.map((ft, i) => <FloatingTerminal key={ft.title} data={ft} delay={0.6 + i * 0.25} />)}
+            {!isMobile && FLOATING_TERMINALS.map((ft, i) => <FloatingTerminal key={ft.title} data={ft} delay={0.6 + i * 0.25} />)}
 
-            <motion.div className="relative z-10 mx-auto transform-gpu" style={{ maxWidth: 700, willChange: "transform, opacity" }}
+            <motion.div className="relative z-10 mx-auto transform-gpu" style={{ maxWidth: isMobile ? "100%" : 700, willChange: "transform, opacity" }}
               initial={{ y: 30, opacity: 0, scale: 0.95 }} animate={{ y: 0, opacity: 1, scale: 1 }}
               transition={{ type: "spring", stiffness: 50, damping: 18, mass: 1, delay: 0.4 }}>
               <div className="absolute -inset-8 rounded-3xl pointer-events-none" style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(6,182,212,0.08) 0%, rgba(139,92,246,0.05) 40%, transparent 70%)" }} />
@@ -351,7 +369,7 @@ export default function Playground() {
                   <span className="ml-3 text-[10px] tracking-[0.15em] uppercase font-mono" style={{ color: "rgba(6,182,212,0.5)" }}>HL_SHELL v4.0</span>
                   <div className="ml-auto flex items-center gap-1.5"><motion.div className="w-[4px] h-[4px] rounded-full" animate={{ background: "#10b981", boxShadow: "0 0 6px rgba(16,185,129,0.6)" }} transition={{ duration:0.5 }} /><span className="text-[8px] tracking-[0.1em] uppercase font-mono text-text-muted/40">connected</span></div>
                 </div>
-                <div ref={cyberTerminalRef} className="overflow-y-auto p-5 sm:p-6 font-mono text-[12px] sm:text-[13px] leading-relaxed" style={{ fontFamily: "var(--font-mono), 'Courier New', monospace", scrollbarWidth: "thin", scrollbarColor: "rgba(6,182,212,0.2) transparent", height: 420 }}>
+                <div ref={cyberTerminalRef} className="overflow-y-auto p-4 sm:p-6 font-mono text-[12px] sm:text-[13px] leading-relaxed" style={{ fontFamily: "var(--font-mono), 'Courier New', monospace", scrollbarWidth: "thin", scrollbarColor: "rgba(6,182,212,0.2) transparent", height: isMobile ? 380 : 420 }}>
                   {history.map((entry, i) => (
                     <div key={i} className="mb-3">
                       {entry.type === "input" ? (
@@ -367,9 +385,11 @@ export default function Playground() {
                   </form>
                 </div>
               </div>
+              {!isMobile && (
               <motion.div className="mt-2 flex justify-center transform-gpu" style={{ willChange: "transform, opacity" }} initial={{ y:60,opacity:0,rotateX:90 }} animate={{ y:0,opacity:1,rotateX:0 }} transition={{ type:"spring", stiffness:45, damping:16, mass:1.3, delay:0.8 }}>
                 <MechanicalKeyboardIsometric activeKey={activeKey} show={showCyberspace} />
               </motion.div>
+              )}
             </motion.div>
           </motion.div>
         )}
