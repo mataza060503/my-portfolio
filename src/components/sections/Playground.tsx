@@ -36,10 +36,10 @@ const BOOT_SEQUENCE = [
 /* ------------------------------------------------------------------ */
 
 const FLOATING_TERMINALS = [
-  { title: "SYS.LOG", lines: ["[OK] neutrino-bridge v2.4.1","[OK] quantum-entanglement-router","[OK] dark-fiber-switch-07","[INFO] Handshake complete with NODE-ALPHA","[INFO] Handshake complete with NODE-BETA","[WARN] Thermal envelope: 62.4C (nominal)","[INFO] Packet buffer: 14.2M / 128M","[DATA] Throughput: 8.7 Tbps avg","[OK] TLS 1.4 tunnel established","[INFO] Compression ratio: 3.2:1"], pos: "top-8 left-[4%]", drift: { x: [0,15,0,-10,0], y: [0,-8,0,12,0] } },
-  { title: "IDLE.term", lines: ["> scanning subnet 10.4.0.0/16","> 247 hosts discovered","> indexing node fingerprints","> fingerprint ID: 8a:3f:...","> establishing mesh topology","> route optimization: active","> latency matrix updated","> 14.2ms avg round-trip","> topology stable (delta < 2%)","> mesh health: GREEN"], pos: "top-[12%] right-[4%]", drift: { x: [0,-12,0,8,0], y: [0,6,0,-10,0] } },
-  { title: "BUILD.pipe", lines: ["$ cargo build -r --target wasm","$ [1/47] compiling core v0.4.2","$ [12/47] compiling parser v2.1","$ [28/47] compiling optimizer","$ [40/47] compiling codegen","$ [45/47] compiling linker v5.0","$ [47/47] compiling runtime","$ Build complete in 2.8s","$ wasm-opt -O4 -o out.wasm","$ output: 84KB gzipped"], pos: "bottom-[16%] left-[3%]", drift: { x: [0,-8,0,14,0], y: [0,-5,0,8,0] } },
-  { title: "MONITOR.dash", lines: ["CPU:  ████████░░ 82%","GPU:  █████████░ 94%","MEM:  ████░░░░░░ 38%","NET:  ██░░░░░░░░ 11%","I/O:  █████░░░░░ 47%","TEMP: ███████░░░ 68C","PWR:  ███░░░░░░░ 32W","FAN:  █████████░ 88%","UPTIME: 47d 3h 12m","HEALTH: ALL SYSTEMS NOMINAL"], pos: "bottom-[8%] right-[3%]", drift: { x: [0,10,0,-6,0], y: [0,4,0,-7,0] } },
+  { title: "SYS.LOG", lines: ["[OK] neutrino-bridge v2.4.1","[OK] quantum-router mesh","[OK] dark-fiber-switch-07","[INFO] Handshake: NODE-ALPHA","[WARN] Thermal envelope: 62.4C","[INFO] Buffer: 14.2M / 128M","[DATA] Throughput: 8.7 Tbps","█▓▓▓▓▓▓▓▓ 12%","█▓▓▓▓▓▓▓▓ 12%","[INFO] Compression: 3.2:1"], pos: "top-8 left-[4%]", drift: { x: [0,15,0,-10,0], y: [0,-8,0,12,0] }, showMobile: true },
+  { title: "BUILD.pipe", lines: ["$ cargo build -r","Compiling core v0.4 ████████░░ 78%","Compiling core v0.4 █████████░ 94%","Compiling parser v2 ██████░░░░ 60%","Compiling parser v2 ████████░░ 82%","Compiling codegen ████░░░░░░ 42%","Compiling codegen ██████░░░░ 64%","Compiling linker ███░░░░░░░ 25%","Compiling linker ██████████ 100%","$ Build complete [2.8s]"], pos: "top-[12%] right-[4%]", drift: { x: [0,-12,0,8,0], y: [0,6,0,-10,0] }, showMobile: true },
+  { title: "MONITOR.dash", lines: ["CPU:  ████████░░ 82%","CPU:  █████████░ 91%","GPU:  █████████░ 94%","MEM:  ████░░░░░░ 38%","TEMP: ███████░░░ 68C","PWR:  ███░░░░░░░ 32W","FAN:  █████████░ 88%","NET:  ██▓▓▓▓▓▓▓▓ 18%","NET:  ██▓▓▓▓▓▓▓▓ 18%","UPTIME: 47d 3h 12m"], pos: "bottom-[16%] left-[3%]", drift: { x: [0,-8,0,14,0], y: [0,-5,0,8,0] }, showMobile: false },
+  { title: "IDLE.term", lines: ["> scan 10.4.0.0/16","> 247 hosts found","> fingerprinting nodes","> mesh topology: 14.2ms","> ░░░░░░░░░░ latency","> ▓▓▓░░░░░░░ latency","> ▓▓▓▓▓▓░░░░ latency","> ▓▓▓▓▓▓▓▓▓░ latency","> route opt: active","> HEALTH: GREEN"], pos: "bottom-[8%] right-[3%]", drift: { x: [0,10,0,-6,0], y: [0,4,0,-7,0] }, showMobile: false },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -47,7 +47,7 @@ const FLOATING_TERMINALS = [
 /* ------------------------------------------------------------------ */
 
 function LogLine({ text, i, total }: { text: string; i: number; total: number }) {
-  const hasProgress = text.includes("%") || text.includes("█");
+  const hasProgress = text.includes("%") || text.includes("█") || text.includes("▓");
   const percent = hasProgress ? parseInt(text.match(/(\d+)%?/)?.[1] || "0") : 0;
   return (
     <motion.div className="text-[9px] sm:text-[10px] leading-relaxed whitespace-nowrap font-mono"
@@ -58,8 +58,8 @@ function LogLine({ text, i, total }: { text: string; i: number; total: number })
           <span className="relative inline-block w-16 h-[6px] rounded-full bg-white/5 overflow-hidden">
             <motion.span className="absolute inset-y-0 left-0 rounded-full"
               style={{ background: percent > 80 ? "linear-gradient(90deg, #10b981, #34d399)" : percent > 50 ? "linear-gradient(90deg, #f59e0b, #fbbf24)" : "linear-gradient(90deg, #06b6d4, #22d3ee)", boxShadow: "0 0 6px rgba(16,185,129,0.3), 0 0 12px rgba(16,185,129,0.1)" }}
-              animate={{ width: [`${Math.max(0, percent - 10)}%`, `${percent}%`, `${Math.max(0, percent - 5)}%`] }}
-              transition={{ duration: 2 + Math.random() * 2, repeat: Infinity, ease: "easeInOut" }} />
+              animate={{ width: [`${Math.max(0, percent - 15)}%`, `${Math.min(100, percent + 8)}%`, `${Math.max(0, percent - 5)}%`] }}
+              transition={{ duration: 1.5 + Math.random() * 1.5, repeat: Infinity, ease: "easeInOut" }} />
           </span>
         </span>
       ) : text}
@@ -73,7 +73,7 @@ function LogLine({ text, i, total }: { text: string; i: number; total: number })
 
 function FloatingTerminal({ data, delay }: { data: typeof FLOATING_TERMINALS[0]; delay: number }) {
   return (
-    <motion.div className={`absolute ${data.pos} w-[200px] sm:w-[240px] pointer-events-none z-0 transform-gpu`}
+    <motion.div className={`absolute ${data.pos} w-[140px] sm:w-[240px] pointer-events-none z-0 transform-gpu`}
       style={{ willChange: "transform, opacity" }}
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: [0, 1, 1, 1], scale: [0.8, 1, 1, 1], x: data.drift.x, y: data.drift.y }}
@@ -357,7 +357,7 @@ export default function Playground() {
           <motion.div key="cyberspace" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, ease: "easeOut" }}
             className="relative mx-auto px-0 sm:px-4" style={{ minHeight: isMobile ? 440 : 600, maxWidth: isMobile ? "100%" : 1024 }}>
             <CyberGrid />
-            {!isMobile && FLOATING_TERMINALS.map((ft, i) => <FloatingTerminal key={ft.title} data={ft} delay={0.6 + i * 0.25} />)}
+            {FLOATING_TERMINALS.filter(ft => !isMobile || ft.showMobile).map((ft, i) => <FloatingTerminal key={ft.title} data={ft} delay={0.6 + i * 0.25} />)}
 
             <motion.div className="relative z-10 mx-auto transform-gpu" style={{ maxWidth: isMobile ? "100%" : 700, willChange: "transform, opacity" }}
               initial={{ y: 30, opacity: 0, scale: 0.95 }} animate={{ y: 0, opacity: 1, scale: 1 }}
