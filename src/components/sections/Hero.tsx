@@ -159,16 +159,16 @@ export default function Hero() {
   const orbScale = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.05, 0.9]);
   const gridY = useTransform(scrollYProgress, [0, 1], [0, -20]);
 
-  const scrollTo = (href: string) => {
+  const scrollTo = useCallback((href: string) => {
     const el = document.querySelector(href);
     if (el) el.scrollIntoView({ behavior: "smooth" });
-  };
+  }, []);
 
   return (
     <section
       id="hero"
       ref={heroRef}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden px-6 pt-20"
+      className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden px-6 pt-[65px]"
     >
       {/* Background ambient orbs — parallax driven */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">

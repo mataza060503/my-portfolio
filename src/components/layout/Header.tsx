@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import { Menu, X } from "lucide-react";
 
 /* Inline brand SVGs (lucide doesn't ship GitHub / LinkedIn) */
@@ -46,12 +46,11 @@ const NAV_LINKS = [
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { scrollY } = useScroll();
 
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    setScrolled(latest > 20);
+  });
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -61,21 +60,21 @@ export default function Header() {
     };
   }, [isOpen]);
 
-  const handleNavClick = (href: string) => {
+  const handleNavClick = useCallback((href: string) => {
     setIsOpen(false);
     const el = document.querySelector(href);
     if (el) el.scrollIntoView({ behavior: "smooth" });
-  };
+  }, []);
 
   return (
     <header
-      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 h-[65px] flex items-center ${
         scrolled
           ? "bg-bg-primary/80 backdrop-blur-xl shadow-lg shadow-black/10 border-b border-bg-tertiary/50"
           : "bg-transparent"
       }`}
     >
-      <div className="mx-auto max-w-7xl flex items-center justify-between px-6 py-4">
+      <div className="mx-auto max-w-7xl flex items-center justify-between px-6 w-full">
         {/* Logo */}
         <button
           onClick={() => handleNavClick("#hero")}
